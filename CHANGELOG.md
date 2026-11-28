@@ -6,6 +6,12 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Halison Code's messages in the game were English even with the game set to Norwegian (issue #457): the texts were in
+  `nb_no.json`, but Minecraft's code for Norwegian Bokmal is `no_no`, so the game never read them. The file is now
+  `no_no.json`, and a test fails if it gets the old name again.
+
 ## [0.0.7] - 2026-11-27
 
 The seventh pre-release, for testing: fixes found while writing lessons against 0.0.6.

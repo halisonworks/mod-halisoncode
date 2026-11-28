@@ -66,10 +66,12 @@ class PlayerMessageTest {
     }
 
     // Issue #275: a translation has every English key and no other, and the same number of %s in each text, so no
-    // argument is lost or shown twice.
+    // argument is lost or shown twice. Minecraft's code for Norwegian Bokmal is no_no (its language list has no
+    // nb_no), so a file named nb_no.json is never read.
     @Test
     void norwegianHasEveryKeyWithTheSameArguments() throws IOException {
-        JsonObject english = english(), norwegian = lang("nb_no");
+        assertNull(PlayerMessageTest.class.getResource("/assets/halisoncode/lang/nb_no.json"), "Minecraft reads Norwegian from no_no.json, not nb_no.json");
+        JsonObject english = english(), norwegian = lang("no_no");
         assertEquals(new java.util.TreeSet<>(english.keySet()), new java.util.TreeSet<>(norwegian.keySet()), "keys");
         List<String> wrong = english.keySet().stream()
                 .filter(k -> english.get(k).getAsString().split("%s", -1).length != norwegian.get(k).getAsString().split("%s", -1).length)
