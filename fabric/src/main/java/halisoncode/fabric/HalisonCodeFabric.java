@@ -26,10 +26,12 @@ public final class HalisonCodeFabric implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(RelayPayloads.ToServer.TYPE, RelayPayloads.ToServer.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(RelayPayloads.ToClient.TYPE, RelayPayloads.ToClient.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(RelayPayloads.Camera.TYPE, RelayPayloads.Camera.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(RelayPayloads.Effect.TYPE, RelayPayloads.Effect.CODEC);
         //?} else {
         /*PayloadTypeRegistry.playC2S().register(RelayPayloads.ToServer.TYPE, RelayPayloads.ToServer.CODEC);
         PayloadTypeRegistry.playS2C().register(RelayPayloads.ToClient.TYPE, RelayPayloads.ToClient.CODEC);
         PayloadTypeRegistry.playS2C().register(RelayPayloads.Camera.TYPE, RelayPayloads.Camera.CODEC);
+        PayloadTypeRegistry.playS2C().register(RelayPayloads.Effect.TYPE, RelayPayloads.Effect.CODEC);
         *///?}
         // Runs on the server thread (Fabric Javadoc).
         ServerPlayNetworking.registerGlobalReceiver(RelayPayloads.ToServer.TYPE, (payload, context) -> ServerRelay.receive(context.player(), payload.json()));

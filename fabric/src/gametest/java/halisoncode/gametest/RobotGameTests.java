@@ -1,5 +1,6 @@
 package halisoncode.gametest;
 
+import halisoncode.Messages;
 import halisoncode.HalisonCode;
 import halisoncode.Limits;
 import halisoncode.McCompat;
@@ -1569,11 +1570,12 @@ public class RobotGameTests {
         path(helper, Blocks.STONE_BRICKS, 4, 1, 6, 1);
         UUID owner = spawn(helper);
         List<Result> results = send(helper, owner, "agent.followPath", BlockIds.byName("STONE_BRICKS"));
-        String message = "I am not on the path. Put me on the stone bricks first.";
+        Result.Text message = Messages.robot("robot.halisoncode.not_on_path", Blocks.STONE_BRICKS);
         helper.succeedWhen(() -> {
+            helper.assertValueEqual(message.english(), "I am not on the path. Put me on the stone bricks first.", "English");
             helper.assertValueEqual(results, List.of(Result.ok(RobotTrail.END, message)), "not on the path");
             helper.assertValueEqual(at(helper, owner), helper.absolutePos(START), "position");
-            helper.assertValueEqual(RobotManager.robot(owner).said(), message, "said");
+            helper.assertValueEqual(Messages.said(RobotManager.robot(owner).said()).getString(), "I am not on the path. Put me on the Stone Bricks first.", "said, with the game's block name (issue #447)");
         });
     }
 
@@ -1961,9 +1963,10 @@ public class RobotGameTests {
         List<Result> results = send(helper, owner, "blocks.fill", fill(helper, stone(), from, to, RobotShapes.REPLACE));
         send(results, helper, owner, "blocks.fill", fill(helper, stone(), from, to, RobotShapes.REPLACE));
         helper.succeedWhen(() -> {
-            helper.assertValueEqual(results, List.of(Result.error(Result.Code.NO_ITEMS, "I ran out of stone after 5 blocks."),
-                    Result.error(Result.Code.NO_ITEMS, "I have no stone in my inventory.")), "a catchable error (issue #438)");
-            helper.assertValueEqual(RobotManager.robot(owner).said(), "I have no stone in my inventory.", "said");
+            helper.assertValueEqual(results, List.of(Result.error(Result.Code.NO_ITEMS, Messages.robot("robot.halisoncode.no_items.after", Blocks.STONE, 5)),
+                    Result.error(Result.Code.NO_ITEMS, Messages.robot("robot.halisoncode.no_items", Blocks.STONE))), "a catchable error (issue #438)");
+            helper.assertValueEqual(results.get(0).message(), "I ran out of stone after 5 blocks.", "English");
+            helper.assertValueEqual(Messages.said(RobotManager.robot(owner).said()).getString(), "I have no Stone in my inventory.", "said");
             helper.assertValueEqual(count(helper, from, to, Blocks.STONE), 5, "stone in the box");
             helper.assertTrue(inv(owner).isEmpty(), "every stone used");
         });
@@ -1978,9 +1981,10 @@ public class RobotGameTests {
         BlockPos from = new BlockPos(2, 2, 3), to = new BlockPos(4, 4, 5);
         List<Result> results = send(helper, owner, "blocks.fill", fill(helper, stone(), from, to, RobotShapes.HOLLOW));
         helper.succeedWhen(() -> {
-            helper.assertValueEqual(results, List.of(Result.error(Result.Code.NO_ITEMS, "I ran out of stone after 20 blocks.")), "a catchable error");
+            helper.assertValueEqual(results, List.of(Result.error(Result.Code.NO_ITEMS, Messages.robot("robot.halisoncode.no_items.after", Blocks.STONE, 20))), "a catchable error");
+            helper.assertValueEqual(results.get(0).message(), "I ran out of stone after 20 blocks.", "English");
             helper.assertValueEqual(count(helper, from, to, Blocks.STONE), 20, "the blocks set stay");
-            helper.assertValueEqual(RobotManager.robot(owner).said(), "I ran out of stone after 20 blocks.", "said");
+            helper.assertValueEqual(Messages.said(RobotManager.robot(owner).said()).getString(), "I ran out of Stone after 20 blocks.", "said");
         });
     }
 
@@ -2012,7 +2016,7 @@ public class RobotGameTests {
         helper.succeedWhen(() -> {
             helper.assertValueEqual(set.size(), 1, "setItem answered");
             helper.assertValueEqual(set.getFirst().code(), Result.Code.NO_PERMISSION, "setItem refused");
-            helper.assertValueEqual(fill, List.of(Result.error(Result.Code.NO_ITEMS, "I ran out of stone after 2 blocks.")), "placed");
+            helper.assertValueEqual(fill, List.of(Result.error(Result.Code.NO_ITEMS, Messages.robot("robot.halisoncode.no_items.after", Blocks.STONE, 2))), "placed");
             helper.assertValueEqual(count(helper, from, to, Blocks.STONE), 2, "stone in the line");
             helper.assertTrue(inv(owner).isEmpty(), "every stone used, no planks given");
             helper.getLevel().getServer().getPlayerList().remove(player);
@@ -2252,7 +2256,7 @@ public class RobotGameTests {
         UUID owner = spawn(helper);
         List<Result> results = send(helper, owner, "shapes.maze", maze(helper, 42));
         helper.succeedWhen(() -> {
-            helper.assertValueEqual(results, List.of(Result.error(Result.Code.NO_ITEMS, "I have no stone bricks in my inventory.")), "nothing placed");
+            helper.assertValueEqual(results, List.of(Result.error(Result.Code.NO_ITEMS, Messages.robot("robot.halisoncode.no_items", Blocks.STONE_BRICKS))), "nothing placed");
             helper.assertValueEqual(count(helper, MAZE, MAZE.offset(6, 2, 6), Blocks.STONE_BRICKS) + count(helper, MAZE, MAZE.offset(6, 2, 6), Blocks.OAK_PLANKS), 0, "no maze");
         });
     }

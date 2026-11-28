@@ -571,6 +571,34 @@ async function errorsSection(page) {
     await page.waitForTimeout(2500);
     check(JSON.stringify(await editor.robotLog(page)) === JSON.stringify(started), "Stop",
         `lines after Stop: ${(await editor.robotLog(page)).slice(started.length).join(" | ") || "none"}`);
+
+    // Issue #9: the standalone relay closes the socket after say "hang up". With nothing waiting on the game, the log
+    // says so and no dialog shows; the next Run connects again without a reload. A program that needs the game after
+    // the close gets the dialog.
+    const HUNG = [...CONNECTED, "say hang up: true", "The connection to the game closed. Press Run to connect again."];
+    step("errors: the connection closes while nothing waits on the game");
+    await setProgram(page, "ts", `agent.say("hang up")
+`);
+    const hung = await editor.run(page, HUNG.length);
+    let dialog = await closeDialog(page);
+    await editor.stop(page);
+    check(JSON.stringify(hung) === JSON.stringify(HUNG) && dialog === "", "idle close", `robot log ${JSON.stringify(hung)}, dialog "${dialog}"`);
+    step("errors: the next Run connects again");
+    await setProgram(page, "ts", `agent.say("again")
+`);
+    const again = await editor.run(page, CONNECTED.length + 1);
+    await editor.stop(page);
+    check(JSON.stringify(again) === JSON.stringify([...CONNECTED, "say again: true"]), "reconnect", `robot log ${JSON.stringify(again)}`);
+    step("errors: a command after the close gets the dialog");
+    await setProgram(page, "ts", `agent.say("hang up")
+loops.pause(1500)
+agent.say("after")
+`);
+    const after = await editor.run(page, HUNG.length + 1);
+    dialog = await closeDialog(page);
+    await editor.stop(page);
+    check(after.at(-1) === "Connection to the game closed: Press Run to connect again." && dialog === "Connection to the game closed Press Run to connect again.",
+        "command after close", `robot log ${JSON.stringify(after)}, dialog "${dialog}"`);
 }
 
 // Issue #217: debug mode (appTheme.debugger) and the main.js patch that makes "Exit Debug Mode" stop the program.
@@ -957,6 +985,73 @@ async function gallerySection(browser, url) {
     check(foreign.length === 0, "gallery", `requests to other hosts: ${[...new Set(foreign)].join(", ")}`);
 }
 
+// Issue #447: in a Norwegian editor the robot's own sentences in the robot log are Norwegian. The standalone relay
+// answers signals.send with the key of "No mod on this server listens for signals"; the editor's sim-strings.json
+// translates it. Its own context, so the language does not carry over to the sections after it.
+async function norwegianLogSection(browser, url) {
+    step("robot log: the robot's own sentences in Norwegian");
+    const context = await browser.newContext({ locale: "nb-NO", viewport: { width: 1280, height: 800 } });
+    const page = await context.newPage();
+    page.setDefaultTimeout(60000);
+    await page.goto(url.replace("/#", "/?lang=nb#"));
+    await editor.newProject(page);
+    await setProgram(page, "ts", `signals.send("lamp-red")`);
+    await editor.start(page);
+    const started = Date.now();
+    let log = [];
+    while (Date.now() - started < 30000 && !log.some(l => l.includes("«lamp-red»") || l.includes("went nowhere"))) {
+        await page.waitForTimeout(100);
+        log = await editor.robotLog(page);
+    }
+    await editor.stop(page);
+    check(log.includes("Ingen mod på denne serveren lytter etter signaler, så «lamp-red» kom ikke frem."),
+        "norwegian log", `robot log ${JSON.stringify(log)}`);
+    // Issue #459: a block in the robot's sentence by the editor's Norwegian name; a block without one keeps its id path.
+    const texts = [];
+    for (const frame of page.frames()) {
+        const t = await frame.evaluate(() => typeof pxsim !== "undefined" && pxsim.robotText ? [
+            pxsim.robotText({ key: "robot.halisoncode.no_items", args: ["stone"], message: "" }),
+            pxsim.robotText({ key: "robot.halisoncode.no_items.after", args: ["oak planks", "3"], message: "" }),
+            pxsim.robotText({ key: "robot.halisoncode.no_items", args: ["no such block"], message: "" }),
+        ] : null).catch(() => null);
+        if (t) texts.push(...t);
+    }
+    check(texts[0] === "Jeg har ingen stein i inventaret." && texts[1] === "Jeg gikk tom for eikeplanker etter 3 blokker."
+        && texts[2] === "Jeg har ingen no such block i inventaret.", "norwegian block names", JSON.stringify(texts));
+    await context.close();
+}
+
+// Issue #450: the editor is an installable web app. The manifest names it and has icons; the service worker shows a
+// "start Minecraft" page when the editor's server is gone (here: the browser offline), and nothing else is cached.
+async function pwaSection(browser, url) {
+    const context = await browser.newContext({ locale: "en-US", viewport: { width: 1280, height: 800 } });
+    const page = await context.newPage();
+    page.setDefaultTimeout(60000);
+    try {
+        await page.goto(url);
+        await page.locator(".newprojectcard").first().waitFor();
+        const manifest = await page.evaluate(async () => (await fetch(document.querySelector("link[rel=manifest]").href)).json());
+        check(manifest.name === "Halison Code" && manifest.display === "standalone" && manifest.start_url === "/", "web app manifest",
+            `name ${manifest.name}, display ${manifest.display}, start_url ${manifest.start_url}`);
+        for (const icon of manifest.icons ?? []) {
+            const type = await page.evaluate(async src => { const r = await fetch(src); return r.ok ? r.headers.get("content-type") : "HTTP " + r.status; }, icon.src);
+            check(type === "image/png", "web app icon", `${icon.src}: ${type}`);
+        }
+        check((manifest.icons ?? []).some(i => i.sizes === "512x512") && manifest.icons.some(i => i.sizes === "192x192"), "web app icons", JSON.stringify(manifest.icons));
+        const scope = await page.evaluate(async () => (await navigator.serviceWorker.ready).scope);
+        check(scope === new URL(url).origin + "/", "service worker", `scope ${scope}`);
+        // The worker controls the next page load; then the editor's server goes away.
+        await page.reload();
+        await page.locator(".newprojectcard").first().waitFor();
+        await context.setOffline(true);
+        await page.goto(new URL(url).origin + "/");
+        const text = await page.locator("main").innerText().catch(() => "");
+        check(text.includes("Start Minecraft first") && text.includes("Start Minecraft først"), "offline page", text.slice(0, 120) || "no page");
+    } finally {
+        await context.close();
+    }
+}
+
 // Issue #16 and commit f0cdd02: our name once in the header, pxt (not Microsoft MakeCode) in About, no README panel.
 async function brandingSection(page) {
     await page.goto("about:blank");
@@ -1019,6 +1114,9 @@ async function main() {
         await fixturesSection(page);
         await savedProjectsSection(browser, relay.url);
         await gallerySection(browser, relay.url);
+        await norwegianLogSection(browser, relay.url);
+        step("installable web app");
+        await pwaSection(browser, relay.url);
         step("header, About box, side panel");
         await brandingSection(page);
     } catch (e) {

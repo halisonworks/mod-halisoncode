@@ -692,7 +692,8 @@ public class MultiRobotGameTests {
         List<Result> digger = goTo(helper, player, "", "Digger");
         List<Result> strangers = goTo(helper, stranger, "Secret", "Miner");
         helper.succeedWhen(() -> {
-            helper.assertValueEqual(results, List.of(Result.ok(false, "there is no free block next to robot Miner")), "boxed in");
+            helper.assertValueEqual(results, List.of(Result.ok(false, Messages.robot("robot.halisoncode.no_free_block", "robot Miner"))), "boxed in");
+            helper.assertValueEqual(results.get(0).message(), "there is no free block next to robot Miner", "English");
             helper.assertValueEqual(nobody, List.of(Result.error(Result.Code.BAD_ARGS,
                     "you have no robot called Nobody; your robots are agent (the default robot), Digger, Miner")), "unknown name: the player's robots");
             helper.assertValueEqual(digger, List.of(Result.error(Result.Code.UNLOADED, "robot Digger is not loaded (see /robot list)")), "not loaded");

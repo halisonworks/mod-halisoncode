@@ -1,1 +1,3 @@
 <!-- Halison Code: overrides pxt's Application Insights snippet. No telemetry; the editor makes no external requests. -->
+<!-- Issue #450: the editor is an installable web app; its service worker only shows a "start Minecraft" page when the game is not running. -->
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/halisoncode-sw.js").catch(function () { });</script>

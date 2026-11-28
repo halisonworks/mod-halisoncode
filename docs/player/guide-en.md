@@ -61,9 +61,15 @@ Use these steps instead if you play with NeoForge. NeoForge needs no Fabric API.
 ## Open the editor
 
 1. Open a world (singleplayer, or a server that has Halison Code, see [Multiplayer](#multiplayer)).
-2. Press T to open chat. Type `/halisoncode` and press Enter.
+2. Press H, or press T to open chat, type `/halisoncode` and press Enter. (Change the key in Options, Controls, Key Binds, under Halison Code.)
 3. Your browser opens the Halison Code editor. The link only works on this computer, and only until you close Minecraft.
 4. While a program runs, the game keeps going when you click on the browser. If you open the pause menu (Escape), the game pauses and the robot waits: the log under the simulator says "Minecraft is paused. Go back to the game and close the menu." Close the menu and the robot goes on.
+
+### The editor as an app (optional)
+
+In Chrome or Edge you can install the editor, so it opens in a window of its own with the Halison Code icon, not as a tab among others. Open the editor from the game, then click the install icon at the right of the address bar (or the menu, then "Install Halison Code"). Your projects are the same in the app and in the browser.
+
+Minecraft must still be running: the editor runs inside the game. Opened from its icon while the game is closed, the app says "Start Minecraft first". If the app shows "Editor link expired" when you run a program, open the editor from the game again. Firefox cannot install web apps; it keeps working in a tab.
 
 ## Spawn the robot
 
@@ -489,7 +495,7 @@ signals.send("lamp-red")
 | builder line from mark with (block), builder fill from mark with (block) (how) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Builds from the mark to the builder. |
 | builder place (block), builder position | `builder.place(Block.Torch)` | Places a block where the builder is, or tells where it is. |
 
-The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."), and the call fails with `NO_ITEMS`, which JavaScript and Python can catch (see [Errors](#errors-and-checking-your-own-program)); in creative mode, or with the gamerule `halisoncode:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
+The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."; over the robot in the game's language, in the log in the editor's), and the call fails with `NO_ITEMS`, which JavaScript and Python can catch (see [Errors](#errors-and-checking-your-own-program)); in creative mode, or with the gamerule `halisoncode:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
 
 The Console category has "say (text)" (`console.log("text")`). It writes to the log under the simulator.
 
@@ -647,6 +653,7 @@ your default robot.
 | `/halisoncode signal <players> <name> [number]` | Sends a signal to the programs of the players named (for example `@a` or a player name), with the number (0 without one). Ops only, and command blocks. It says how many programs got it and names the players it did not reach. |
 | `/halisoncode log on [minutes]` and `/halisoncode log off` | Extended logging in your own game for 15 minutes (or 1 to 60). See "Report a problem". |
 | `/halisoncode report` | Writes what a bug report needs to `logs/halisoncode-report.txt` in the game's folder. |
+| `/halisoncode effects <on\|off>` | Your robot's particles and sounds: a footstep and a puff for each step, smoke and a low note when a command is refused, and a green outline around the block that detect or inspect looks at. Only you see them, and only near the robot. Off is kept on this computer. |
 | `/halisoncode server log on [minutes]`, `/halisoncode server log off` and `/halisoncode server report` | The same for the server. Ops only, and the server console. |
 | `/robot spawn [name]` | Spawns your robot, or moves it to you. Stops a running program. A new robot with a name needs room under `halisoncode:max_robots`. |
 | `/robot list` | Your robots and where they are. |
