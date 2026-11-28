@@ -1,0 +1,10 @@
+{
+  "there is no free block next to {0}": "det er ingen ledig blokk ved siden av {0}",
+  "I have no {0} in my inventory.": "Jeg har ingen {0} i inventaret.",
+  "I ran out of {0} after {1} blocks.": "Jeg gikk tom for {0} etter {1} blokker.",
+  "I ran out of {0} after 1 block.": "Jeg gikk tom for {0} etter 1 blokk.",
+  "I am not on the path. Put me on the {0} first.": "Jeg står ikke på stien. Sett meg på {0} først.",
+  "Signal \"{0}\" was sent less than a second ago, so it was not sent again.": "Signalet «{0}» ble sendt for mindre enn et sekund siden, så det ble ikke sendt igjen.",
+  "No mod on this server listens for signals, so \"{0}\" went nowhere.": "Ingen mod på denne serveren lytter etter signaler, så «{0}» kom ikke frem.",
+  "No mod on this server takes the signal \"{0}\".": "Ingen mod på denne serveren tar imot signalet «{0}»."
+}

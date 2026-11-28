@@ -27,7 +27,6 @@ class PlayerMessageTest {
     /** Text that is not Halison Code's own: the program's words, and the name the player gave a robot. The camera HUD draws. */
     private static final List<String> ALLOWED = List.of(
             "player.sendSystemMessage(Component.literal(c.text()))",
-            "lines.add(Component.literal(entity.said()))",
             "if (Component.literal(name).equals(getCustomName())) return;",
             "setCustomName(Component.literal(name))",
             "Component.translatable(\"hud.halisoncode.camera\", robot.getDisplayName())");
@@ -63,6 +62,28 @@ class PlayerMessageTest {
         try (InputStream in = PlayerMessageTest.class.getResourceAsStream("/assets/halisoncode/lang/" + name + ".json")) {
             return JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
         }
+    }
+
+    // Issue #447: the robot's own sentences are in en_us.json (%s) and in the editor's simulator (ROBOT_TEXTS, {0}) with
+    // the same English, and the editor's Norwegian sim-strings.json translates each of them.
+    @Test
+    void robotSentencesMatchTheEditor() throws IOException {
+        JsonObject english = english();
+        String sim = Files.readString(root().resolve("target/sim/simulator.ts"));
+        String table = sim.substring(sim.indexOf("ROBOT_TEXTS"), sim.indexOf("};", sim.indexOf("ROBOT_TEXTS")));
+        TreeMap<String, String> inSim = new TreeMap<>();
+        Matcher m = Pattern.compile("\"(robot\\.halisoncode\\.[a-z_.]+)\": \"((?:[^\"\\\\]|\\\\.)*)\"").matcher(table);
+        while (m.find()) inSim.put(m.group(1), m.group(2).replace("\\\"", "\"").replaceAll("\\{\\d+\\}", "%s"));
+        TreeMap<String, String> inMod = new TreeMap<>();
+        english.keySet().stream().filter(k -> k.startsWith("robot.")).forEach(k -> inMod.put(k, english.get(k).getAsString()));
+        assertFalse(inMod.isEmpty(), "robot sentences in en_us.json");
+        assertEquals(inMod, inSim, "en_us.json and ROBOT_TEXTS in target/sim/simulator.ts");
+        JsonObject nb = JsonParser.parseString(Files.readString(root().resolve("target/locales/nb/halisoncode/sim-strings.json"))).getAsJsonObject();
+        List<String> untranslated = inSim.values().stream().map(t -> {
+            int[] n = {0};
+            return Pattern.compile("%s").matcher(t).replaceAll(r -> "{" + n[0]++ + "}");
+        }).filter(t -> !nb.has(t)).toList();
+        assertEquals(List.of(), untranslated, "sentences without a Norwegian text in sim-strings.json");
     }
 
     // Issue #275: a translation has every English key and no other, and the same number of %s in each text, so no
@@ -112,7 +133,8 @@ class PlayerMessageTest {
     void textsReadLikeTheGames() throws IOException {
         for (var e : english().entrySet()) {
             String text = e.getValue().getAsString();
-            assertFalse(text.endsWith("."), e.getKey() + ": the game's messages have no full stop at the end");
+            // What a robot says (issue #447) is a sentence of its own, with a full stop, as it always was.
+            if (!e.getKey().startsWith("robot.")) assertFalse(text.endsWith("."), e.getKey() + ": the game's messages have no full stop at the end");
             assertFalse(Pattern.compile("agent\\.|[A-Z]+_[A-Z]+|\\b(UNLOADED|STOPPED|PROTECTED)\\b").matcher(text).find(), e.getKey() + ": no internal codes: " + text);
             assertFalse(Pattern.compile("%(?!s)").matcher(text).find(), e.getKey() + ": only %s works in a translation");
         }

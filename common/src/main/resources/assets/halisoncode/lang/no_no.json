@@ -103,5 +103,13 @@
   "message.halisoncode.robot.no_default": "Du har ingen standardrobot. Bruk %s for å få en",
   "message.halisoncode.robot.none": "Du har ingen robot. Bruk %s for å få en",
   "message.halisoncode.robot.unknown": "Du har ingen robot som heter %s. Bruk /robot list for å se dine",
-  "message.halisoncode.robot.unloaded": "%s er ikke lastet. Gå nær den, eller bruk %s for å hente den til deg"
+  "message.halisoncode.robot.unloaded": "%s er ikke lastet. Gå nær den, eller bruk %s for å hente den til deg",
+  "robot.halisoncode.no_free_block": "det er ingen ledig blokk ved siden av %s",
+  "robot.halisoncode.no_items": "Jeg har ingen %s i inventaret.",
+  "robot.halisoncode.no_items.after": "Jeg gikk tom for %s etter %s blokker.",
+  "robot.halisoncode.no_items.after_one": "Jeg gikk tom for %s etter 1 blokk.",
+  "robot.halisoncode.not_on_path": "Jeg står ikke på stien. Sett meg på %s først.",
+  "robot.halisoncode.signal.again": "Signalet «%s» ble sendt for mindre enn et sekund siden, så det ble ikke sendt igjen.",
+  "robot.halisoncode.signal.nobody": "Ingen mod på denne serveren lytter etter signaler, så «%s» kom ikke frem.",
+  "robot.halisoncode.signal.not_taken": "Ingen mod på denne serveren tar imot signalet «%s»."
 }

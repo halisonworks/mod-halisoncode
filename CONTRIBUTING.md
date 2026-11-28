@@ -218,7 +218,11 @@ Halison Code has two sets of texts, and a new language needs both (issue #275).
 3. Run `./gradlew :fabric:26.3:test` and the [editor test suite](README.md#editor-test-suite), and open a
    pull request.
 
-What the robot says over its head and the messages in the robot log are English for now.
+What the robot says in its own words (issue #447, keys `robot.halisoncode.*`) is in the same files: over the robot
+the game shows the player's language, and in the robot log the editor shows its own. For the editor, list the sentence
+in `ROBOT_TEXTS` in `target/sim/simulator.ts` (`{0}` where the lang file has `%s`) and translate it in
+`target/locales/<lang>/halisoncode/sim-strings.json`, keyed by the English text. `PlayerMessageTest` checks that both
+match `en_us.json` and that Norwegian has every sentence. Errors that are not the robot's own sentences stay English.
 
 ## Branding and licences
 

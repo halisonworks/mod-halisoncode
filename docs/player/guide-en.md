@@ -489,7 +489,7 @@ signals.send("lamp-red")
 | builder line from mark with (block), builder fill from mark with (block) (how) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Builds from the mark to the builder. |
 | builder place (block), builder position | `builder.place(Block.Torch)` | Places a block where the builder is, or tells where it is. |
 
-The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."), and the call fails with `NO_ITEMS`, which JavaScript and Python can catch (see [Errors](#errors-and-checking-your-own-program)); in creative mode, or with the gamerule `halisoncode:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
+The robot builds all of this, so it must be within 32 blocks of every part. In survival it uses the blocks in its inventory and stops when they run out. Then it says why, over its head and in the log under the simulator (for example "I have no stone in my inventory."; over the robot in the game's language, in the log in the editor's), and the call fails with `NO_ITEMS`, which JavaScript and Python can catch (see [Errors](#errors-and-checking-your-own-program)); in creative mode, or with the gamerule `halisoncode:free_items`, it needs none. Blocks that are in the way are broken and go into the robot.
 
 The Console category has "say (text)" (`console.log("text")`). It writes to the log under the simulator.
 

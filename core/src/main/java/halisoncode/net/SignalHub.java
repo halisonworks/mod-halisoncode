@@ -2,6 +2,7 @@ package halisoncode.net;
 
 import halisoncode.api.Signals;
 import halisoncode.log.Log;
+import halisoncode.robot.Result;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -67,8 +68,9 @@ public final class SignalHub {
     }
 
     /** What signals.send answers (with false) when no mod listens for signals at all. */
-    public static String nobodyListens(String name) {
-        return "No mod on this server listens for signals, so \"" + name + "\" went nowhere.";
+    public static Result.Text nobodyListens(String name) {
+        return new Result.Text("robot.halisoncode.signal.nobody", List.of(name),
+                "No mod on this server listens for signals, so \"" + name + "\" went nowhere.");
     }
 
     public static boolean hasListeners() {
