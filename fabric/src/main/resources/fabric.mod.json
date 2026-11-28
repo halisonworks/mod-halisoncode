@@ -6,6 +6,7 @@
   "description": "Program Kintro, a robot, with blocks, JavaScript or Python. Not approved by or associated with Mojang or Microsoft.",
   "authors": ["Tor Einar Enne"],
   "license": "MIT",
+  "icon": "assets/halisoncode/icon.png",
   "contact": {
     "homepage": "https://github.com/halisonworks/mod-halisoncode",
     "sources": "https://github.com/halisonworks/mod-halisoncode",

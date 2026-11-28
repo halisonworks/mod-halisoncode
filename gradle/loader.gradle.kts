@@ -72,6 +72,8 @@ tasks.named<ProcessResources>(editorResources) {
             "runnerembed.js", "ai.2.min.js",
         )
     }
+    // Issue #450: the service worker and its "start Minecraft" page of the installable editor, at the editor's root.
+    from(rootProject.layout.projectDirectory.dir("target/pwa")) { into("halisoncode-editor") }
     // pxt hardcodes "Microsoft MakeCode" in the editor UI (issue #16), and its debug mode reruns the program on exit
     // (issue #217). Patch the copied main.js and fail the build when a pattern is gone, so a pxt upgrade cannot bring
     // them back unnoticed.
