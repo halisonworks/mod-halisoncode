@@ -3,6 +3,7 @@ package halisoncode;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import halisoncode.robot.Result;
 import halisoncode.robot.RobotLinks;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,10 +13,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Issue #278: everything Halison Code says to a player goes through here, so it looks and reads like the game's own
@@ -38,6 +41,37 @@ public final class Messages {
     /** A message in the reader's language. It carries the English text, for vanilla clients that have no Halison Code keys. */
     public static MutableComponent of(String key, Object... args) {
         return Component.translatableWithFallback(key, ENGLISH.get(key).getAsString(), args);
+    }
+
+    // Issue #447: what a robot says in its own words is kept in the robot's synced text as KEY, the key, and each
+    // argument after ARG; a block argument is BLOCK and the block's translation key. A program's own text (agent.say)
+    // has no control characters (RobotCommand turns them into spaces), so it never starts with KEY.
+    private static final String KEY = "", ARG = "", BLOCK = "";
+
+    /**
+     * A sentence of the robot's own (key {@code robot.halisoncode.*}), for the editor: the English text and each argument
+     * as text, a block by its id with spaces ("oak planks").
+     */
+    public static Result.Text robot(String key, Object... args) {
+        List<String> texts = java.util.Arrays.stream(args).map(a -> a instanceof Block b
+                ? BuiltInRegistries.BLOCK.getKey(b).getPath().replace('_', ' ') : String.valueOf(a)).toList();
+        return new Result.Text(key, texts, String.format(java.util.Locale.ROOT, ENGLISH.get(key).getAsString(), texts.toArray()));
+    }
+
+    /** {@link #robot} as the robot's synced text, with block arguments kept as blocks so the reader sees its own name for them. */
+    public static String robotSaid(String key, Object... args) {
+        StringBuilder s = new StringBuilder(KEY).append(key);
+        for (Object a : args) s.append(ARG).append(a instanceof Block b ? BLOCK + b.getDescriptionId() : String.valueOf(a));
+        return s.toString();
+    }
+
+    /** The line over a robot: a program's text as it is, or the robot's own sentence in the reader's language. */
+    public static Component said(String said) {
+        if (!said.startsWith(KEY)) return Component.literal(said);
+        String[] parts = said.substring(1).split(ARG, -1);
+        Object[] args = java.util.Arrays.stream(parts, 1, parts.length)
+                .map(a -> a.startsWith(BLOCK) ? (Object) Component.translatable(a.substring(1)) : a).toArray();
+        return of(parts[0], args);
     }
 
     /** Success: white, and silent when the game rule sendCommandFeedback is off. Only the caller sees it. */

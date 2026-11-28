@@ -23,7 +23,11 @@ import com.mojang.blaze3d.Blaze3D;
 /*import net.minecraft.util.Util;
 *///?} else
 /*import net.minecraft.Util;*/
+import com.mojang.blaze3d.platform.InputConstants;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.function.Consumer;
+import net.minecraft.client.KeyMapping;
 
 /**
  * The client half of the mod: the editor and relay server. Each loader's client entrypoint registers the renderer,
@@ -33,6 +37,13 @@ public final class HalisonCodeClient {
     private static RelayServer relay;
     /** Issue #192: the linked editor was told that the game is paused. */
     private static boolean toldPaused;
+    /** Issue #7: opens the editor as /halisoncode does. H by default; change it in Controls under Halison Code. */
+    public static final KeyMapping EDITOR_KEY = new KeyMapping("key.halisoncode.editor", InputConstants.KEY_H, RobotCameraClient.KEY.getCategory());
+    /** Opens the launcher file in the browser. The client GameTest puts its own here, so no browser starts. */
+    //? if >=26.3 {
+    public static Consumer<Path> browser = Blaze3D::openPath;
+    //?} else
+    /*public static Consumer<Path> browser = Util.getPlatform()::openPath;*/
 
     private HalisonCodeClient() {
     }
@@ -102,6 +113,10 @@ public final class HalisonCodeClient {
      */
     public static void tick(Minecraft client) {
         Log.tick();
+        // In a world, with no screen open: the key does nothing on the title screen or while typing in chat.
+        while (EDITOR_KEY.consumeClick()) {
+            if (client.player != null) openEditor();
+        }
         boolean paused = keepRunning() && client.isPaused();
         if (paused == toldPaused) return;
         toldPaused = paused;
@@ -114,7 +129,6 @@ public final class HalisonCodeClient {
         if (relay != null) relay.deliver(Protocol.control("stop", -1, "You left the world, so the program stopped."));
     }
 
-    // shortcut: /halisoncode client command instead of a key binding; add a key when the HUD comes.
     /** The {@code /halisoncode} client commands, for either loader's own command source. */
     public static <S> LiteralArgumentBuilder<S> command() {
         return LiteralArgumentBuilder.<S>literal("halisoncode").executes(c -> openEditor())
@@ -175,10 +189,7 @@ public final class HalisonCodeClient {
             return 0;
         }
         try {
-            //? if >=26.3 {
-            EditorLauncher.launch(EditorLauncher.DIR, relay.editorUrl(), Blaze3D::openPath);
-            //?} else
-            /*EditorLauncher.launch(EditorLauncher.DIR, relay.editorUrl(), Util.getPlatform()::openPath);*/
+            EditorLauncher.launch(EditorLauncher.DIR, relay.editorUrl(), browser);
         } catch (IOException e) {
             HalisonCode.LOG.error("Halison Code could not write the editor launcher", e); // a path, never the token
         }

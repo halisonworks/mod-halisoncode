@@ -292,7 +292,7 @@ namespace pxsim.agent {
         });
         b.log(line + (res.value === undefined ? "done" : res.value));
         // Why the robot did less than asked (no blocks left, not on the path): the robot says it in the game too.
-        if (res.message) b.log(`${who(robot)}${res.message}`);
+        if (res.message) b.log(`${who(robot)}${robotText(res)}`);
         return res.value;
     }
 

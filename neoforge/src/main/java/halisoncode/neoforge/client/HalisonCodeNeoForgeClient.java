@@ -44,6 +44,7 @@ public final class HalisonCodeNeoForgeClient {
         modBus.addListener((RegisterKeyMappingsEvent event) -> {
             event.register(RobotCameraClient.KEY);
             event.register(RobotCameraClient.FOLLOW_KEY);
+            event.register(HalisonCodeClient.EDITOR_KEY);
         });
         modBus.addListener((RegisterGuiLayersEvent event) -> event.registerAboveAll(RobotCameraClient.HUD, RobotCameraClient::hud));
         // Handlers run on the render thread (NeoForge's default HandlerThread.MAIN), as Fabric's receivers do.

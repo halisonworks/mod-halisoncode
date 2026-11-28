@@ -2,6 +2,7 @@ package halisoncode.gametest;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import halisoncode.HalisonCode;
+import halisoncode.client.HalisonCodeClient;
 import halisoncode.client.RobotCameraClient;
 import halisoncode.client.RobotEffectsClient;
 import halisoncode.client.RobotScreen;
@@ -58,6 +59,12 @@ public class RobotClientGameTest implements FabricClientGameTest {
                 throw new AssertionError("screenshot templates need an 854 x 480 window at GUI scale 2, got " + size[0] + " x " + size[1] + " at " + size[2]);
             }
             owner = context.computeOnClient(mc -> mc.player.getUUID());
+
+            // Issue #456: what the chat screen checks. The client's own /halisoncode commands and the server's parse
+            // without an error, so the chat does not mark them red.
+            for (String typed : new String[] {"halisoncode log on 60", "halisoncode report", "halisoncode", "halisoncode signal test"}) {
+                context.waitFor(mc -> parses(mc, typed), TICKS);
+            }
 
             // /robot spawn typed by the player: a real command packet.
             command(context, world, "robot spawn");
@@ -127,6 +134,17 @@ public class RobotClientGameTest implements FabricClientGameTest {
             });
             world.getConnection().waitForServerboundPackets();
             server.waitFor(s -> RobotCamera.viewing(s.getPlayerList().getPlayer(owner)) == null, TICKS);
+
+            // Issue #7: the editor key, H by default, opens the editor as /halisoncode does: here into a list, not a browser.
+            assertEquals(InputConstants.KEY_H, HalisonCodeClient.EDITOR_KEY.getDefaultKey().getValue(), "the editor key's default");
+            java.util.List<java.nio.file.Path> opened = new java.util.concurrent.CopyOnWriteArrayList<>();
+            java.util.function.Consumer<java.nio.file.Path> browser = context.computeOnClient(mc -> HalisonCodeClient.browser);
+            context.runOnClient(mc -> HalisonCodeClient.browser = opened::add);
+            context.getInput().pressKey(HalisonCodeClient.EDITOR_KEY);
+            context.waitFor(mc -> !opened.isEmpty(), TICKS);
+            context.runOnClient(mc -> HalisonCodeClient.browser = browser);
+            assertEquals(1, opened.size(), "one launcher file per press");
+            assertEquals(true, java.nio.file.Files.exists(opened.get(0)), "the launcher file exists");
 
             // Follow camera (issue #177): behind and above the robot, with the robot's model drawn.
             command(context, world, "robot camera follow");
@@ -297,6 +315,12 @@ public class RobotClientGameTest implements FabricClientGameTest {
         RobotEntity robot = RobotManager.robot(key);
         if (robot == null) throw new AssertionError("robot " + key.name() + " is not loaded");
         return robot;
+    }
+
+    private static boolean parses(net.minecraft.client.Minecraft mc, String typed) {
+        var parse = mc.getConnection().getCommands().parse(typed, mc.getConnection().getSuggestionsProvider());
+        // An unknown word stops the parse there, so the rest is left unread.
+        return parse.getExceptions().isEmpty() && !parse.getReader().canRead();
     }
 
     private static String cmd(long id, long run, String op, String args) {

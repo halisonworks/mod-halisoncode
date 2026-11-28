@@ -61,7 +61,7 @@ Bruk disse stegene i stedet hvis du spiller med NeoForge. NeoForge trenger ikke 
 ## Åpne editoren
 
 1. Åpne en verden (enspiller, eller en server som har Halison Code, se [Flerspiller](#flerspiller)).
-2. Trykk T for å åpne chatten. Skriv `/halisoncode` og trykk Enter.
+2. Trykk H, eller trykk T for å åpne chatten, skriv `/halisoncode` og trykk Enter. (Tasten endrer du under Alternativer, Kontroller, Tastebindinger, under Halison Code.)
 3. Nettleseren åpner Halison Code-editoren. Lenken virker bare på denne maskinen, og bare til du lukker Minecraft.
 4. Mens et program kjører, fortsetter spillet når du klikker i nettleseren. Åpner du pausemenyen (Escape), går spillet på pause og roboten venter: loggen under simulatoren sier "Minecraft is paused. Go back to the game and close the menu." Lukk menyen, så fortsetter roboten.
 
@@ -495,7 +495,7 @@ signals.send("lamp-red")
 | bygger linje fra merke med (blokk), bygger fyll fra merke med (blokk) (hvordan) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Bygger fra merket til byggeren. |
 | bygger plasser (blokk), bygger posisjon | `builder.place(Block.Torch)` | Plasserer en blokk der byggeren er, eller sier hvor den er. |
 
-Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "I have no stone in my inventory."), og kallet feiler med `NO_ITEMS`, som JavaScript og Python kan fange (se [Feil](#feil-og-å-sjekke-sitt-eget-program)); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
+Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "Jeg har ingen Stein i inventaret."; over roboten på spillets språk, i loggen på editorens), og kallet feiler med `NO_ITEMS`, som JavaScript og Python kan fange (se [Feil](#feil-og-å-sjekke-sitt-eget-program)); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
 
 Kategorien Konsoll har "si (tekst)" (`console.log("tekst")`). Den skriver i loggen under simulatoren.
 
