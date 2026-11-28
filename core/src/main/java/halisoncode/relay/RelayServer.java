@@ -581,6 +581,8 @@ public final class RelayServer implements AutoCloseable {
         private final AtomicLong pending = new AtomicLong();
         private volatile boolean authed;
         volatile long run = -1;
+        /** Issue #460: the run the browser stopped itself, so a closing socket does not stop it a second time. */
+        private volatile long stoppedRun = -1;
         /** Issue #458: the relay's own heartbeat for this session's run. */
         private Future<?> heartbeat;
         // Standalone only: what the program listens for, for the chat and death events of player.say below.
@@ -612,7 +614,7 @@ public final class RelayServer implements AutoCloseable {
                 active.compareAndSet(this, null);
                 if (authed) LOG.info("editor disconnected (run {})", run);
                 // A closed tab stops its run now instead of after the heartbeat timeout. The server ignores an old run id.
-                if (link != null && run >= 0) link.send(Protocol.control("stop", run, null));
+                if (link != null && run >= 0 && stoppedRun != run) link.send(Protocol.control("stop", run, null));
             }
         }
 
@@ -729,6 +731,10 @@ public final class RelayServer implements AutoCloseable {
                 return true;
             }
             String problem = link.send(text);
+            if (problem == null && type.equals("control") && msg.has("op") && "stop".equals(msg.get("op").getAsString())
+                    && msg.has("run")) {
+                stoppedRun = msg.get("run").getAsLong();
+            }
             if (problem != null) {
                 LOG.warn("not passed on to the game: {}", problem);
                 write(Protocol.error(id, Result.Code.UNLOADED, problem));

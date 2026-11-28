@@ -151,6 +151,24 @@ class RelayForwardingTest {
         assertTrue(stop.contains("\"op\":\"stop\"") && stop.contains("\"run\":7"), stop);
     }
 
+    // Issue #460: Stop in the editor sends control stop and then closes the socket; the relay sends no second stop.
+    @Test
+    void aRunTheBrowserStoppedIsNotStoppedAgain() throws Exception {
+        var inbox = new LinkedBlockingQueue<String>();
+        WebSocket ws = hello(inbox);
+        inbox.poll(2, TimeUnit.SECONDS);
+        ws.sendText("{\"v\":2,\"t\":\"control\",\"op\":\"start\"}", true).join();
+        assertTrue(toServer.poll(2, TimeUnit.SECONDS).contains("start"));
+        server.deliver("{\"v\":2,\"t\":\"control\",\"op\":\"start\",\"run\":8}");
+        assertTrue(inbox.poll(2, TimeUnit.SECONDS).contains("\"run\":8"));
+        ws.sendText("{\"v\":2,\"t\":\"control\",\"op\":\"stop\",\"run\":8}", true).join();
+        String stop = toServer.poll(2, TimeUnit.SECONDS);
+        assertTrue(stop != null && stop.contains("\"op\":\"stop\"") && stop.contains("\"run\":8"), stop);
+        ws.abort();
+        String again = toServer.poll(1, TimeUnit.SECONDS);
+        assertTrue(again == null || !again.contains("\"op\":\"stop\""), again);
+    }
+
     @Test
     void versionMismatchIsNotForwarded()throws Exception {
         var inbox = new LinkedBlockingQueue<String>();
