@@ -115,6 +115,27 @@ class RelayForwardingTest {
     }
 
     // Issue #5: closing the tab stops its run at once, without waiting for the heartbeat timeout.
+    // Issue #458: a browser may stop the timers of a hidden tab, so the relay itself keeps the run alive while the
+    // socket is open, with no heartbeat from the browser at all.
+    @Test
+    void theRelayKeepsAnOpenSessionAlive() throws Exception {
+        var inbox = new LinkedBlockingQueue<String>();
+        WebSocket ws = hello(inbox);
+        inbox.poll(2, TimeUnit.SECONDS);
+        ws.sendText("{\"v\":2,\"t\":\"control\",\"op\":\"start\"}", true).join();
+        assertTrue(toServer.poll(2, TimeUnit.SECONDS).contains("start"));
+        server.deliver("{\"v\":2,\"t\":\"control\",\"op\":\"start\",\"run\":9}");
+        String beat = toServer.poll(halisoncode.net.Protocol.RELAY_HEARTBEAT_MS + 2000, TimeUnit.MILLISECONDS);
+        assertNotNull(beat, "no heartbeat from the relay");
+        assertTrue(beat.contains("\"op\":\"heartbeat\"") && beat.contains("\"run\":9"), beat);
+        ws.abort();
+        String stop = toServer.poll(2, TimeUnit.SECONDS);
+        while (stop != null && stop.contains("heartbeat")) stop = toServer.poll(2, TimeUnit.SECONDS);
+        assertTrue(stop != null && stop.contains("\"op\":\"stop\""), "closing the tab still stops the run: " + stop);
+        toServer.clear();
+        assertNull(toServer.poll(halisoncode.net.Protocol.RELAY_HEARTBEAT_MS + 1000, TimeUnit.MILLISECONDS), "no heartbeat after the socket closed");
+    }
+
     @Test
     void closingTheTabStopsTheRun() throws Exception {
         var inbox = new LinkedBlockingQueue<String>();

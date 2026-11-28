@@ -32,6 +32,8 @@ public final class Protocol {
     // game never times out a run; make it a server config value in step 4.
     public static final int HEARTBEAT_TIMEOUT_TICKS = 200;
     public static final int HEARTBEAT_TIMEOUT_MS = HEARTBEAT_TIMEOUT_TICKS * 50;
+    /** Issue #458: how often the client's relay sends a heartbeat for an open editor socket, well inside the timeout. */
+    public static final int RELAY_HEARTBEAT_MS = 3000;
 
     private Protocol() {
     }
