@@ -8,6 +8,8 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ### Added
 
+- The editor can be installed as an app in Chrome and Edge (issue #450): a window of its own with the Halison Code
+  icon. Opened while Minecraft is closed, it says to start the game first. Projects are shared with the browser tab.
 - The robot shows what it does (issues #81, #82): a footstep and a puff for each step, smoke and a low note when a
   command is refused, and a green outline around the block that detect or inspect looks at. Only the owner sees them,
   near the robot. `/halisoncode effects off` turns them off on this computer. Placing and breaking already had the

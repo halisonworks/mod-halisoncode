@@ -67,6 +67,12 @@ Bruk disse stegene i stedet hvis du spiller med NeoForge. NeoForge trenger ikke 
 
 Editoren kan vise norsk. Robotblokkene har norske navn. Noen få andre tekster er fortsatt på engelsk.
 
+### Editoren som app (valgfritt)
+
+I Chrome eller Edge kan du installere editoren, så den åpnes i et eget vindu med Halison Code-ikonet, og ikke som en fane blant mange. Åpne editoren fra spillet, og klikk på installer-ikonet til høyre i adressefeltet (eller menyen, så «Installer Halison Code»). Prosjektene dine er de samme i appen og i nettleseren.
+
+Minecraft må fortsatt kjøre: editoren kjører inne i spillet. Åpner du appen fra ikonet mens spillet er lukket, står det «Start Minecraft først». Står det «Editor link expired» når du kjører et program, åpner du editoren fra spillet på nytt. Firefox kan ikke installere nettapper; der virker editoren i en fane som før.
+
 ## Lag roboten
 
 Skriv `/robot spawn` i chatten. Roboten dukker opp ved føttene dine og ser samme vei som deg.

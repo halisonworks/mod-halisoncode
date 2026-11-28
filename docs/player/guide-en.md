@@ -65,6 +65,12 @@ Use these steps instead if you play with NeoForge. NeoForge needs no Fabric API.
 3. Your browser opens the Halison Code editor. The link only works on this computer, and only until you close Minecraft.
 4. While a program runs, the game keeps going when you click on the browser. If you open the pause menu (Escape), the game pauses and the robot waits: the log under the simulator says "Minecraft is paused. Go back to the game and close the menu." Close the menu and the robot goes on.
 
+### The editor as an app (optional)
+
+In Chrome or Edge you can install the editor, so it opens in a window of its own with the Halison Code icon, not as a tab among others. Open the editor from the game, then click the install icon at the right of the address bar (or the menu, then "Install Halison Code"). Your projects are the same in the app and in the browser.
+
+Minecraft must still be running: the editor runs inside the game. Opened from its icon while the game is closed, the app says "Start Minecraft first". If the app shows "Editor link expired" when you run a program, open the editor from the game again. Firefox cannot install web apps; it keeps working in a tab.
+
 ## Spawn the robot
 
 Type `/robot spawn` in chat. The robot appears at your feet and looks the same way as you.
