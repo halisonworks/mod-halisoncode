@@ -78,6 +78,7 @@
   "key.category.halisoncode.halisoncode": "Halison Code",
   "key.halisoncode.camera": "Robot camera",
   "key.halisoncode.camera_follow": "Robot camera: follow",
+  "key.halisoncode.editor": "Open the editor",
   "message.halisoncode.direction.back": "back",
   "message.halisoncode.direction.down": "down",
   "message.halisoncode.direction.east": "east",

@@ -2,6 +2,7 @@ package halisoncode.gametest;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import halisoncode.HalisonCode;
+import halisoncode.client.HalisonCodeClient;
 import halisoncode.client.RobotCameraClient;
 import halisoncode.client.RobotScreen;
 import halisoncode.net.RelayPayloads;
@@ -131,6 +132,17 @@ public class RobotClientGameTest implements FabricClientGameTest {
             });
             world.getConnection().waitForServerboundPackets();
             server.waitFor(s -> RobotCamera.viewing(s.getPlayerList().getPlayer(owner)) == null, TICKS);
+
+            // Issue #7: the editor key, H by default, opens the editor as /halisoncode does: here into a list, not a browser.
+            assertEquals(InputConstants.KEY_H, HalisonCodeClient.EDITOR_KEY.getDefaultKey().getValue(), "the editor key's default");
+            java.util.List<java.nio.file.Path> opened = new java.util.concurrent.CopyOnWriteArrayList<>();
+            java.util.function.Consumer<java.nio.file.Path> browser = context.computeOnClient(mc -> HalisonCodeClient.browser);
+            context.runOnClient(mc -> HalisonCodeClient.browser = opened::add);
+            context.getInput().pressKey(HalisonCodeClient.EDITOR_KEY);
+            context.waitFor(mc -> !opened.isEmpty(), TICKS);
+            context.runOnClient(mc -> HalisonCodeClient.browser = browser);
+            assertEquals(1, opened.size(), "one launcher file per press");
+            assertEquals(true, java.nio.file.Files.exists(opened.get(0)), "the launcher file exists");
 
             // Follow camera (issue #177): behind and above the robot, with the robot's model drawn.
             command(context, world, "robot camera follow");

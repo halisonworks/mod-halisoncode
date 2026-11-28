@@ -61,7 +61,7 @@ Bruk disse stegene i stedet hvis du spiller med NeoForge. NeoForge trenger ikke 
 ## Åpne editoren
 
 1. Åpne en verden (enspiller, eller en server som har Halison Code, se [Flerspiller](#flerspiller)).
-2. Trykk T for å åpne chatten. Skriv `/halisoncode` og trykk Enter.
+2. Trykk H, eller trykk T for å åpne chatten, skriv `/halisoncode` og trykk Enter. (Tasten endrer du under Alternativer, Kontroller, Tastebindinger, under Halison Code.)
 3. Nettleseren åpner Halison Code-editoren. Lenken virker bare på denne maskinen, og bare til du lukker Minecraft.
 4. Mens et program kjører, fortsetter spillet når du klikker i nettleseren. Åpner du pausemenyen (Escape), går spillet på pause og roboten venter: loggen under simulatoren sier "Minecraft is paused. Go back to the game and close the menu." Lukk menyen, så fortsetter roboten.
 

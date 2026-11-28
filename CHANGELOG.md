@@ -6,13 +6,10 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
-### Fixed
-
-- In a Norwegian editor the robot log names blocks in Norwegian ("Jeg har ingen stein i inventaret"), not by the
-  block's id (issue #459).
-
 ### Added
 
+- A key opens the editor (issue #7): H by default, the same as typing `/halisoncode`. Change it in Controls, under
+  Halison Code.
 - What the robot says in its own words is in Norwegian too (issue #447): over its head in the game's language, with
   the game's own block names ("Jeg gikk tom for Eikeplanker etter 90 blokker."), and in the robot log in the editor's
   language. That is when it runs out of blocks, is not on the path, finds no free block next to another robot, and the
@@ -20,6 +17,10 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
   error keeps its code, so `error.indexOf("NO_ITEMS") == 0` still works. Other error texts stay English.
 
 ### Fixed
+
+- In a Norwegian editor the robot log names blocks in Norwegian ("Jeg har ingen stein i inventaret"), not by the
+  block's id (issue #459).
+
 
 - Stop in the editor reached the server twice: the relay sent its own stop when the socket closed (issue #460).
 - A program was stopped with "no heartbeat from the editor" about a minute after the player went back to Minecraft

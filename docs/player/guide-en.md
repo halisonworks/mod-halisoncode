@@ -61,7 +61,7 @@ Use these steps instead if you play with NeoForge. NeoForge needs no Fabric API.
 ## Open the editor
 
 1. Open a world (singleplayer, or a server that has Halison Code, see [Multiplayer](#multiplayer)).
-2. Press T to open chat. Type `/halisoncode` and press Enter.
+2. Press H, or press T to open chat, type `/halisoncode` and press Enter. (Change the key in Options, Controls, Key Binds, under Halison Code.)
 3. Your browser opens the Halison Code editor. The link only works on this computer, and only until you close Minecraft.
 4. While a program runs, the game keeps going when you click on the browser. If you open the pause menu (Escape), the game pauses and the robot waits: the log under the simulator says "Minecraft is paused. Go back to the game and close the menu." Close the menu and the robot goes on.
 

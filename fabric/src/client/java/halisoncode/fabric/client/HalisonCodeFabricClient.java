@@ -44,9 +44,11 @@ public final class HalisonCodeFabricClient implements ClientModInitializer {
         //? if >=26.1 {
         KeyMappingHelper.registerKeyMapping(RobotCameraClient.KEY);
         KeyMappingHelper.registerKeyMapping(RobotCameraClient.FOLLOW_KEY);
+        KeyMappingHelper.registerKeyMapping(HalisonCodeClient.EDITOR_KEY);
         //?} else {
         /*KeyBindingHelper.registerKeyBinding(RobotCameraClient.KEY);
         KeyBindingHelper.registerKeyBinding(RobotCameraClient.FOLLOW_KEY);
+        KeyBindingHelper.registerKeyBinding(HalisonCodeClient.EDITOR_KEY);
         *///?}
         ClientPlayNetworking.registerGlobalReceiver(RelayPayloads.Camera.TYPE, (payload, context) -> RobotCameraClient.receive(context.client(), payload));
         ClientTickEvents.START_CLIENT_TICK.register(RobotCameraClient::tick);
