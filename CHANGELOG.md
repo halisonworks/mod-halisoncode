@@ -6,6 +6,11 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Fixed
+
+- In a Norwegian editor the robot log names blocks in Norwegian ("Jeg har ingen stein i inventaret"), not by the
+  block's id (issue #459).
+
 ### Added
 
 - What the robot says in its own words is in Norwegian too (issue #447): over its head in the game's language, with

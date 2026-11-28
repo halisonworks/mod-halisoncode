@@ -978,6 +978,18 @@ async function norwegianLogSection(browser, url) {
     await editor.stop(page);
     check(log.includes("Ingen mod på denne serveren lytter etter signaler, så «lamp-red» kom ikke frem."),
         "norwegian log", `robot log ${JSON.stringify(log)}`);
+    // Issue #459: a block in the robot's sentence by the editor's Norwegian name; a block without one keeps its id path.
+    const texts = [];
+    for (const frame of page.frames()) {
+        const t = await frame.evaluate(() => typeof pxsim !== "undefined" && pxsim.robotText ? [
+            pxsim.robotText({ key: "robot.halisoncode.no_items", args: ["stone"], message: "" }),
+            pxsim.robotText({ key: "robot.halisoncode.no_items.after", args: ["oak planks", "3"], message: "" }),
+            pxsim.robotText({ key: "robot.halisoncode.no_items", args: ["no such block"], message: "" }),
+        ] : null).catch(() => null);
+        if (t) texts.push(...t);
+    }
+    check(texts[0] === "Jeg har ingen stein i inventaret." && texts[1] === "Jeg gikk tom for eikeplanker etter 3 blokker."
+        && texts[2] === "Jeg har ingen no such block i inventaret.", "norwegian block names", JSON.stringify(texts));
     await context.close();
 }
 
