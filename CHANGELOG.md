@@ -8,6 +8,7 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ### Added
 
+- A mod icon in the mod list (Fabric and NeoForge): the robot head of the editor's logo (issue #198).
 - The editor can be installed as an app in Chrome and Edge (issue #450): a window of its own with the Halison Code
   icon. Opened while Minecraft is closed, it says to start the game first. Projects are shared with the browser tab.
 - The robot shows what it does (issues #81, #82): a footstep and a puff for each step, smoke and a low note when a
