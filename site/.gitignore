@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.astro/
+# Made by scripts/sync.mjs from docs/ and target/docs
+src/content/docs/guide.md
+src/content/docs/nb/guide.md
+src/content/docs/servers.md
+src/content/docs/commands.md
+src/content/docs/inspiration.md
+src/content/docs/nb/inspiration.md
+public/examples/
+src/assets/logo.svg
+public/favicon.svg

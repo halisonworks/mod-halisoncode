@@ -1,0 +1,57 @@
+name: pages
+
+# The website (site/, Astro Starlight) on GitHub Pages: https://halisonworks.github.io/mod-halisoncode/
+# Built from main, so the guide on the site matches the released mod; a pull request that touches the site or the pages
+# it copies (docs/player, docs/server-admin.md, docs/commands.md, target/docs) is built but not published.
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", "docs/player/**", "docs/server-admin.md", "docs/commands.md", "target/docs/**", ".github/workflows/pages.yml"]
+  pull_request:
+    paths: ["site/**", "docs/player/**", "docs/server-admin.md", "docs/commands.md", "target/docs/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Build the site
+        working-directory: site
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

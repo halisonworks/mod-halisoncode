@@ -1,0 +1,16 @@
+{
+  "name": "halisoncode-site",
+  "private": true,
+  "type": "module",
+  "description": "The Halison Code website on GitHub Pages: start, guide, inspiration and help for teachers, in English and Norwegian.",
+  "scripts": {
+    "sync": "node scripts/sync.mjs",
+    "dev": "node scripts/sync.mjs && astro dev",
+    "build": "node scripts/sync.mjs && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.43.2",
+    "astro": "^7.4.13"
+  }
+}

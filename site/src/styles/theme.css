@@ -1,0 +1,12 @@
+/* Green accent from the robot logo (target/docs/static/logo.svg), in Starlight's variables. */
+:root {
+    --sl-color-accent-low: #0f2e12;
+    --sl-color-accent: #3f9b45;
+    --sl-color-accent-high: #c8eccb;
+}
+
+:root[data-theme="light"] {
+    --sl-color-accent-low: #d4eed6;
+    --sl-color-accent: #2e7d32;
+    --sl-color-accent-high: #12401a;
+}
