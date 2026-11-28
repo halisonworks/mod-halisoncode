@@ -571,6 +571,34 @@ async function errorsSection(page) {
     await page.waitForTimeout(2500);
     check(JSON.stringify(await editor.robotLog(page)) === JSON.stringify(started), "Stop",
         `lines after Stop: ${(await editor.robotLog(page)).slice(started.length).join(" | ") || "none"}`);
+
+    // Issue #9: the standalone relay closes the socket after say "hang up". With nothing waiting on the game, the log
+    // says so and no dialog shows; the next Run connects again without a reload. A program that needs the game after
+    // the close gets the dialog.
+    const HUNG = [...CONNECTED, "say hang up: true", "The connection to the game closed. Press Run to connect again."];
+    step("errors: the connection closes while nothing waits on the game");
+    await setProgram(page, "ts", `agent.say("hang up")
+`);
+    const hung = await editor.run(page, HUNG.length);
+    let dialog = await closeDialog(page);
+    await editor.stop(page);
+    check(JSON.stringify(hung) === JSON.stringify(HUNG) && dialog === "", "idle close", `robot log ${JSON.stringify(hung)}, dialog "${dialog}"`);
+    step("errors: the next Run connects again");
+    await setProgram(page, "ts", `agent.say("again")
+`);
+    const again = await editor.run(page, CONNECTED.length + 1);
+    await editor.stop(page);
+    check(JSON.stringify(again) === JSON.stringify([...CONNECTED, "say again: true"]), "reconnect", `robot log ${JSON.stringify(again)}`);
+    step("errors: a command after the close gets the dialog");
+    await setProgram(page, "ts", `agent.say("hang up")
+loops.pause(1500)
+agent.say("after")
+`);
+    const after = await editor.run(page, HUNG.length + 1);
+    dialog = await closeDialog(page);
+    await editor.stop(page);
+    check(after.at(-1) === "Connection to the game closed: Press Run to connect again." && dialog === "Connection to the game closed Press Run to connect again.",
+        "command after close", `robot log ${JSON.stringify(after)}, dialog "${dialog}"`);
 }
 
 // Issue #217: debug mode (appTheme.debugger) and the main.js patch that makes "Exit Debug Mode" stop the program.

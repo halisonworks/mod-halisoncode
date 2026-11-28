@@ -166,6 +166,7 @@ namespace pxsim {
     // shortcut: 3 s keeps well inside the server's 10 s heartbeat timeout; read limits.heartbeatTimeoutMs if it ever changes.
     const HEARTBEAT_MS = 3000;
     const REOPEN = "Open the editor from the game again with /halisoncode.";
+    const AGAIN = "Press Run to connect again.";
 
     /**
      * A robot command the game refused (issue #218). The program gets the text "CODE: message" as the thrown value.
@@ -205,7 +206,9 @@ namespace pxsim {
      * One socket per run: hello, welcome, control start (the server returns the run id), then the cmds, answered by
      * id (robots in parallel each have their own command waiting), with a heartbeat every few seconds. A refused command
      * throws into the program (RobotError); on any other error the program stays blocked and a message explains why.
-     * shortcut: no reconnect; a dropped socket ends the run, the player presses Run again.
+     * Issue #9: a socket that closes while nothing waits on the game (no command waiting, no events subscribed) only
+     * says so in the log; the next Run opens a new socket, without a reload, while the token is valid. If the program
+     * then needs the game after all, it gets the dialog as before.
      */
     export class Relay {
         private ws: WebSocket;
@@ -216,6 +219,10 @@ namespace pxsim {
         private heartbeat: number;
         private welcomed = false;
         private done = false;
+        /** Issue #9: the socket closed while nothing waited on the game. */
+        private idleClosed = false;
+        /** The program subscribed to events, so it waits on the game even with no command out. */
+        private listening = false;
         /** A dialog already told the player why the program ended. */
         public told = false;
 
@@ -227,8 +234,9 @@ namespace pxsim {
                 const ws = new WebSocket(`ws://${window.location.host}/relay`);
                 this.ws = ws;
                 ws.onopen = () => this.send({ t: "hello", token, client: "0.0.1" });
-                ws.onerror = () => this.fail("Cannot reach the game", "Is Minecraft running with Halison Code? " + REOPEN);
-                ws.onclose = () => this.fail("Connection to the game closed", REOPEN);
+                // An error on an open socket is followed by its close, which says what it means.
+                ws.onerror = () => { if (!this.welcomed) this.fail("Cannot reach the game", "Is Minecraft running with Halison Code? " + REOPEN); };
+                ws.onclose = () => this.dropped();
                 ws.onmessage = ev => {
                     const msg = JSON.parse(ev.data as string);
                     if (msg.t === "welcome") {
@@ -268,6 +276,7 @@ namespace pxsim {
          */
         async command(op: string, args: any[], robot = board().robot): Promise<any> {
             await this.connect();
+            if (this.idleClosed) this.fail("Connection to the game closed", AGAIN);
             const id = this.nextId++;
             return new Promise<any>((ok, no) => {
                 this.pending[id] = { ok, no };
@@ -278,6 +287,8 @@ namespace pxsim {
         /** Tells the game what the program listens for (issues #27, #89, #249); each call replaces the one before. */
         async subscribe(what: { chat: string[], died: boolean, broken: number[], redstone: boolean, dayStart: boolean, signals: string[] }) {
             await this.connect();
+            if (this.idleClosed) this.fail("Connection to the game closed", AGAIN);
+            this.listening = what.chat.length > 0 || what.died || what.broken.length > 0 || what.redstone || what.dayStart || what.signals.length > 0;
             this.send({ t: "control", op: "subscribe", run: this.run, ...what });
         }
 
@@ -296,6 +307,18 @@ namespace pxsim {
         private send(msg: any) {
             msg.v = PROTOCOL;
             if (this.ws && this.ws.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(msg));
+        }
+
+        // The socket closed. With nothing waiting on the game the program is done with it: a line in the log, no dialog.
+        private dropped() {
+            if (this.done) return;
+            if (!this.welcomed || this.listening || Object.keys(this.pending).length > 0) {
+                this.fail("Connection to the game closed", REOPEN);
+                return;
+            }
+            this.idleClosed = true;
+            if (this.heartbeat) window.clearInterval(this.heartbeat);
+            board().log(`The connection to the game closed. ${AGAIN}`);
         }
 
         private fail(header: string, body: string) {

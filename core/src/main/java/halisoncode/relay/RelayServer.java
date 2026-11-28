@@ -782,6 +782,12 @@ public final class RelayServer implements AutoCloseable {
                 schedule(() -> write(Protocol.error(id, refusal, "refused on purpose by the standalone relay")), STUB_ACK_MS);
                 return;
             }
+            // For the editor suite (issue #9): say "hang up" is answered, then the socket closes, as when the game drops the editor.
+            if (said.equals("hang up") && msg.get("op") instanceof JsonPrimitive op && op.getAsString().equals("agent.say")) {
+                schedule(() -> write(Protocol.reply(id, Result.ok(true))), STUB_ACK_MS);
+                schedule(() -> closeQuietly(socket), STUB_ACK_MS + 300);
+                return;
+            }
             // For the editor suite (issue #27): player.say "chat <line>" is that chat line and "die" a death, as the
             // game would send them to a program that listens for them. Issue #89: "break <block code>" is a block the
             // player broke, "redstone" a signal reaching the robot and "day" the start of a new day. Issue #249:

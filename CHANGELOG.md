@@ -16,6 +16,13 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
   answers of signals.send. In the log the block name is still the English id ("oak planks"). A caught `NO_ITEMS`
   error keeps its code, so `error.indexOf("NO_ITEMS") == 0` still works. Other error texts stay English.
 
+### Changed
+
+- The editor and a closed connection (issue #9): when the connection to the game closes while nothing waits on it
+  (the program is done and listens for no events), the robot log says "Press Run to connect again" instead of showing
+  an error dialog, and the next Run connects again without reloading the page. A program that still needs the game
+  gets the dialog as before.
+
 ### Fixed
 
 - In a Norwegian editor the robot log names blocks in Norwegian ("Jeg har ingen stein i inventaret"), not by the
