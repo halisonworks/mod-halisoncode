@@ -42,6 +42,8 @@
   "commands.halisoncode.list.default": "default robot (agent)",
   "commands.halisoncode.list.default.named": "%s (agent)",
   "commands.halisoncode.list.unloaded": "%s: not loaded",
+  "commands.halisoncode.effects.off": "The robot's particles and sounds are off. Turn them on with %s",
+  "commands.halisoncode.effects.on": "The robot's particles and sounds are on",
   "commands.halisoncode.log.off": "Extended logging is off",
   "commands.halisoncode.log.on": "Extended logging is on for %s minutes. Make the problem happen again, then use %s",
   "commands.halisoncode.move": "%s moved %s, blocks: %s",

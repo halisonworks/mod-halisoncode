@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import halisoncode.HalisonCode;
 import halisoncode.client.HalisonCodeClient;
 import halisoncode.client.RobotCameraClient;
+import halisoncode.client.RobotEffectsClient;
 import halisoncode.client.RobotRenderer;
 import halisoncode.client.RobotScreen;
 import halisoncode.net.RelayPayloads;
@@ -50,6 +51,7 @@ public final class HalisonCodeFabricClient implements ClientModInitializer {
         KeyBindingHelper.registerKeyBinding(RobotCameraClient.FOLLOW_KEY);
         KeyBindingHelper.registerKeyBinding(HalisonCodeClient.EDITOR_KEY);
         *///?}
+        ClientPlayNetworking.registerGlobalReceiver(RelayPayloads.Effect.TYPE, (payload, context) -> RobotEffectsClient.receive(context.client(), payload));
         ClientPlayNetworking.registerGlobalReceiver(RelayPayloads.Camera.TYPE, (payload, context) -> RobotCameraClient.receive(context.client(), payload));
         ClientTickEvents.START_CLIENT_TICK.register(RobotCameraClient::tick);
         ClientTickEvents.END_CLIENT_TICK.register(HalisonCodeClient::tick);

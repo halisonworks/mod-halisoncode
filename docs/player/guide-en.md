@@ -647,6 +647,7 @@ your default robot.
 | `/halisoncode signal <players> <name> [number]` | Sends a signal to the programs of the players named (for example `@a` or a player name), with the number (0 without one). Ops only, and command blocks. It says how many programs got it and names the players it did not reach. |
 | `/halisoncode log on [minutes]` and `/halisoncode log off` | Extended logging in your own game for 15 minutes (or 1 to 60). See "Report a problem". |
 | `/halisoncode report` | Writes what a bug report needs to `logs/halisoncode-report.txt` in the game's folder. |
+| `/halisoncode effects <on\|off>` | Your robot's particles and sounds: a footstep and a puff for each step, smoke and a low note when a command is refused, and a green outline around the block that detect or inspect looks at. Only you see them, and only near the robot. Off is kept on this computer. |
 | `/halisoncode server log on [minutes]`, `/halisoncode server log off` and `/halisoncode server report` | The same for the server. Ops only, and the server console. |
 | `/robot spawn [name]` | Spawns your robot, or moves it to you. Stops a running program. A new robot with a name needs room under `halisoncode:max_robots`. |
 | `/robot list` | Your robots and where they are. |

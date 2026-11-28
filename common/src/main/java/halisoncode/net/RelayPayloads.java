@@ -2,6 +2,7 @@ package halisoncode.net;
 
 import halisoncode.HalisonCode;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -51,6 +52,18 @@ public final class RelayPayloads {
 
         @Override
         public Type<Camera> type() {
+            return TYPE;
+        }
+    }
+
+    /** Server to the robot's owner (issues #81, #82): one of {@link halisoncode.robot.RobotEffects}' kinds at a block. */
+    public record Effect(int kind, BlockPos pos) implements CustomPacketPayload {
+        public static final Type<Effect> TYPE = new Type<>(Identifier.fromNamespaceAndPath(HalisonCode.MOD_ID, "effect"));
+        public static final StreamCodec<ByteBuf, Effect> CODEC = StreamCodec.composite(
+                ByteBufCodecs.VAR_INT, Effect::kind, BlockPos.STREAM_CODEC, Effect::pos, Effect::new);
+
+        @Override
+        public Type<Effect> type() {
             return TYPE;
         }
     }

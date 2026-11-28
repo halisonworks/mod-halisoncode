@@ -657,6 +657,7 @@ standardroboten din.
 | `/halisoncode signal <spillere> <navn> [tall]` | Sender et signal til programmene til spillerne du nevner (for eksempel `@a` eller et spillernavn), med tallet (0 uten tall). Bare for operatører, og for kommandoblokker. Den sier hvor mange programmer som fikk det, og nevner spillerne det ikke nådde. |
 | `/halisoncode log on [minutter]` og `/halisoncode log off` | Utvidet logging i ditt eget spill i 15 minutter (eller 1 til 60). Se «Meld fra om et problem». |
 | `/halisoncode report` | Skriver det en feilmelding trenger til `logs/halisoncode-report.txt` i mappen til spillet. |
+| `/halisoncode effects <on\|off>` | Robotens partikler og lyder: et fottrinn og et pust for hvert steg, røyk og en dyp tone når en kommando blir avvist, og et grønt omriss rundt blokka som detect eller inspect ser på. Bare du ser dem, og bare nær roboten. Av blir husket på denne maskinen. |
 | `/halisoncode server log on [minutter]`, `/halisoncode server log off` og `/halisoncode server report` | Det samme for serveren. Bare for operatører og serverkonsollen. |
 | `/robot spawn [navn]` | Lager roboten din, eller flytter den til deg. Stopper et program som kjører. En ny robot med navn trenger plass under `halisoncode:max_robots`. |
 | `/robot list` | Robotene dine og hvor de er. |

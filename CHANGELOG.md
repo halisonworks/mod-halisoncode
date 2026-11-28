@@ -8,6 +8,10 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ### Added
 
+- The robot shows what it does (issues #81, #82): a footstep and a puff for each step, smoke and a low note when a
+  command is refused, and a green outline around the block that detect or inspect looks at. Only the owner sees them,
+  near the robot. `/halisoncode effects off` turns them off on this computer. Placing and breaking already had the
+  game's own sounds.
 - A key opens the editor (issue #7): H by default, the same as typing `/halisoncode`. Change it in Controls, under
   Halison Code.
 - What the robot says in its own words is in Norwegian too (issue #447): over its head in the game's language, with

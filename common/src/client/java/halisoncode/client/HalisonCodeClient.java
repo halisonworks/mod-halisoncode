@@ -137,7 +137,17 @@ public final class HalisonCodeClient {
                                 .then(RequiredArgumentBuilder.<S, Integer>argument("minutes", IntegerArgumentType.integer(1, Log.MAX_MINUTES))
                                         .executes(c -> extendedLog(IntegerArgumentType.getInteger(c, "minutes")))))
                         .then(LiteralArgumentBuilder.<S>literal("off").executes(c -> extendedLog(0))))
-                .then(LiteralArgumentBuilder.<S>literal("report").executes(c -> report()));
+                .then(LiteralArgumentBuilder.<S>literal("report").executes(c -> report()))
+                .then(LiteralArgumentBuilder.<S>literal("effects")
+                        .then(LiteralArgumentBuilder.<S>literal("on").executes(c -> effects(true)))
+                        .then(LiteralArgumentBuilder.<S>literal("off").executes(c -> effects(false))));
+    }
+
+    /** Issue #81: the robot's particles and sounds on this computer. */
+    private static int effects(boolean on) {
+        RobotEffectsClient.set(on);
+        show(on ? Messages.of("commands.halisoncode.effects.on") : Messages.of("commands.halisoncode.effects.off", "/halisoncode effects on"));
+        return 1;
     }
 
     private static int extendedLog(int minutes) {

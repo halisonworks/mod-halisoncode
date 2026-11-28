@@ -213,7 +213,14 @@ public final class RobotManager {
     }
 
     public static RobotQueue queue(RobotLinks.Key key) {
-        return QUEUES.computeIfAbsent(key, k -> new RobotQueue(RUNS.computeIfAbsent(k.owner(), o -> new RobotQueue.Run())));
+        return QUEUES.computeIfAbsent(key, k -> {
+            RobotQueue queue = new RobotQueue(RUNS.computeIfAbsent(k.owner(), o -> new RobotQueue.Run()));
+            queue.refused = () -> {
+                RobotEntity robot = LOADED.get(k);
+                if (robot != null) RobotEffects.send(robot, RobotEffects.ERROR, robot.blockPosition());
+            };
+            return queue;
+        });
     }
 
     /** The owner's default robot, or null when it is not loaded. */
@@ -703,6 +710,7 @@ public final class RobotManager {
             return;
         }
         robot.setPos(Vec3.atBottomCenterOf(target));
+        RobotEffects.send(robot, RobotEffects.MOVE, target);
         // PLACE_ON_MOVE: an empty slot or a failed place does not stop the move.
         if (robot.placeOnMove()) place(robot, from, dir.getOpposite());
         entry.step++;
@@ -1317,10 +1325,14 @@ public final class RobotManager {
             }
             case DESTROY -> Result.ok(destroy(robot, target));
             // Block: true where move would be blocked (non-empty collision shape), so water and grass tufts are false.
-            case DETECT -> Result.ok(command.b() == RobotCommand.KIND_BLOCK
-                    ? !state.getCollisionShape(level, target).isEmpty()
-                    : level.hasNeighborSignal(target));
+            case DETECT -> {
+                RobotEffects.send(robot, RobotEffects.INSPECT, target);
+                yield Result.ok(command.b() == RobotCommand.KIND_BLOCK
+                        ? !state.getCollisionShape(level, target).isEmpty()
+                        : level.hasNeighborSignal(target));
+            }
             case INSPECT -> {
+                RobotEffects.send(robot, RobotEffects.INSPECT, target);
                 int code = BlockIds.fromModern(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
                 yield Result.ok(command.b() == RobotCommand.KIND_BLOCK ? code : BlockIds.data(code));
             }

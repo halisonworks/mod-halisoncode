@@ -42,6 +42,8 @@
   "commands.halisoncode.list.default": "standardrobot (agent)",
   "commands.halisoncode.list.default.named": "%s (agent)",
   "commands.halisoncode.list.unloaded": "%s: ikke lastet",
+  "commands.halisoncode.effects.off": "Robotens partikler og lyder er av. Slå dem på med %s",
+  "commands.halisoncode.effects.on": "Robotens partikler og lyder er på",
   "commands.halisoncode.log.off": "Utvidet logging er av",
   "commands.halisoncode.log.on": "Utvidet logging er på i %s minutter. Få problemet til å skje igjen, og bruk så %s",
   "commands.halisoncode.move": "%s flyttet seg %s, blokker: %s",

@@ -4,9 +4,11 @@ import com.mojang.blaze3d.platform.InputConstants;
 import halisoncode.HalisonCode;
 import halisoncode.client.HalisonCodeClient;
 import halisoncode.client.RobotCameraClient;
+import halisoncode.client.RobotEffectsClient;
 import halisoncode.client.RobotScreen;
 import halisoncode.net.RelayPayloads;
 import halisoncode.robot.RobotCamera;
+import halisoncode.robot.RobotEffects;
 import halisoncode.robot.RobotEntity;
 import halisoncode.robot.RobotLinks;
 import halisoncode.robot.RobotManager;
@@ -256,6 +258,23 @@ public class RobotClientGameTest implements FabricClientGameTest {
             context.takeScreenshot("robot-wave-full");
             command(context, world, "robot nametag off Miner");
             context.waitFor(mc -> mc.level.getEntity(minerId) instanceof RobotEntity r && !r.isCustomNameVisible(), TICKS);
+            // Issues #81 and #82: inspect outlines the block in front for the owner; with the effects off, nothing shows.
+            // Last in this world: the particles would show in the screenshots above.
+            BlockPos inspected = server.computeOnServer(s -> robot(owner).blockPosition().relative(robot(owner).getDirection()));
+            java.util.List<RelayPayloads.Effect> effects = new java.util.concurrent.CopyOnWriteArrayList<>();
+            context.runOnClient(mc -> RobotEffectsClient.shown = effects::add);
+            command(context, world, "robot inspect forward");
+            context.waitFor(mc -> !effects.isEmpty(), TICKS);
+            assertEquals(new RelayPayloads.Effect(RobotEffects.INSPECT, inspected), effects.get(0), "the inspected block");
+            context.runOnClient(mc -> RobotEffectsClient.set(false));
+            effects.clear();
+            command(context, world, "robot inspect forward");
+            context.waitTicks(10);
+            assertEquals(0, effects.size(), "effects off");
+            context.runOnClient(mc -> {
+                RobotEffectsClient.set(true);
+                RobotEffectsClient.shown = e -> { };
+            });
             save = world.getWorldSave();
         }
 
