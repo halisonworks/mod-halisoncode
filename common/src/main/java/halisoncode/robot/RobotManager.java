@@ -213,7 +213,14 @@ public final class RobotManager {
     }
 
     public static RobotQueue queue(RobotLinks.Key key) {
-        return QUEUES.computeIfAbsent(key, k -> new RobotQueue(RUNS.computeIfAbsent(k.owner(), o -> new RobotQueue.Run())));
+        return QUEUES.computeIfAbsent(key, k -> {
+            RobotQueue queue = new RobotQueue(RUNS.computeIfAbsent(k.owner(), o -> new RobotQueue.Run()));
+            queue.refused = () -> {
+                RobotEntity robot = LOADED.get(k);
+                if (robot != null) RobotEffects.send(robot, RobotEffects.ERROR, robot.blockPosition());
+            };
+            return queue;
+        });
     }
 
     /** The owner's default robot, or null when it is not loaded. */
@@ -703,6 +710,7 @@ public final class RobotManager {
             return;
         }
         robot.setPos(Vec3.atBottomCenterOf(target));
+        RobotEffects.send(robot, RobotEffects.MOVE, target);
         // PLACE_ON_MOVE: an empty slot or a failed place does not stop the move.
         if (robot.placeOnMove()) place(robot, from, dir.getOpposite());
         entry.step++;
@@ -949,11 +957,11 @@ public final class RobotManager {
             if (!free && slot < 0) {
                 // In survival the robot gathers its own blocks: say why it stopped, and (issue #438) answer with an error the
                 // program can catch, so it can fetch more and go on. The blocks set so far stay.
-                String missing = name(target).replace('_', ' ');
-                String why = entry.step == 0 ? "I have no " + missing + " in my inventory."
-                        : "I ran out of " + missing + " after " + entry.step + (entry.step == 1 ? " block." : " blocks.");
-                robot.say(why);
-                buildEnd(robot, queue, entry, "the robot has no " + name(target) + " in its inventory (the owner does not get items free)", Result.error(Result.Code.NO_ITEMS, why));
+                // Issue #447: in the player's language, over the robot and in the editor.
+                String key = entry.step == 0 ? "robot.halisoncode.no_items" : entry.step == 1 ? "robot.halisoncode.no_items.after_one" : "robot.halisoncode.no_items.after";
+                Object[] args = entry.step <= 1 ? new Object[]{target} : new Object[]{target, entry.step};
+                robot.say(Messages.robotSaid(key, args));
+                buildEnd(robot, queue, entry, "the robot has no " + name(target) + " in its inventory (the owner does not get items free)", Result.error(Result.Code.NO_ITEMS, Messages.robot(key, args)));
                 return;
             }
             ItemStack stack = free ? new ItemStack(target.asItem()) : robot.inventory().getItem(slot);
@@ -1063,7 +1071,7 @@ public final class RobotManager {
         if (entry.path == null && Arrays.stream(Direction.values()).map(target::relative)
                 .noneMatch(p -> level.isLoaded(p) && (!blocked(level, p) || opens(level, p)))) {
             HalisonCode.LOG.detail("path: {} cannot go to {}: no free block next to it at {}.", label(robot), label(other), at(target));
-            queue.finish(Result.ok(false, "there is no free block next to " + name));
+            queue.finish(Result.ok(false, Messages.robot("robot.halisoncode.no_free_block", name)));
             return;
         }
         navigate(robot, queue, entry, target);
@@ -1129,9 +1137,8 @@ public final class RobotManager {
             if (entry.step == 0 && entry.note != null) {
                 // Not on the path and none next to it: say so instead of a bare End.
                 Block block = McCompat.block(Identifier.parse(BlockIds.toModern(entry.command.a())));
-                String message = "I am not on the path. Put me on the " + name(block).replace('_', ' ') + " first.";
-                robot.say(message);
-                queue.finish(Result.ok(stop, message));
+                robot.say(Messages.robotSaid("robot.halisoncode.not_on_path", block));
+                queue.finish(Result.ok(stop, Messages.robot("robot.halisoncode.not_on_path", block)));
             } else {
                 queue.finish(Result.ok(stop));
             }
@@ -1318,10 +1325,14 @@ public final class RobotManager {
             }
             case DESTROY -> Result.ok(destroy(robot, target));
             // Block: true where move would be blocked (non-empty collision shape), so water and grass tufts are false.
-            case DETECT -> Result.ok(command.b() == RobotCommand.KIND_BLOCK
-                    ? !state.getCollisionShape(level, target).isEmpty()
-                    : level.hasNeighborSignal(target));
+            case DETECT -> {
+                RobotEffects.send(robot, RobotEffects.INSPECT, target);
+                yield Result.ok(command.b() == RobotCommand.KIND_BLOCK
+                        ? !state.getCollisionShape(level, target).isEmpty()
+                        : level.hasNeighborSignal(target));
+            }
             case INSPECT -> {
+                RobotEffects.send(robot, RobotEffects.INSPECT, target);
                 int code = BlockIds.fromModern(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
                 yield Result.ok(command.b() == RobotCommand.KIND_BLOCK ? code : BlockIds.data(code));
             }

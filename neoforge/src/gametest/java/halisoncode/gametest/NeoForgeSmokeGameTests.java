@@ -275,6 +275,7 @@ public final class NeoForgeSmokeGameTests {
         roundTrip(helper, new RelayPayloads.ToServer("{\"t\":\"hello\"}"), PacketFlow.SERVERBOUND);
         roundTrip(helper, new RelayPayloads.ToClient("{\"t\":\"ack\"}"), PacketFlow.CLIENTBOUND);
         roundTrip(helper, new RelayPayloads.Camera(42, true), PacketFlow.CLIENTBOUND);
+        roundTrip(helper, new RelayPayloads.Effect(2, new net.minecraft.core.BlockPos(1, -64, 3)), PacketFlow.CLIENTBOUND);
         // A FakePlayer has no client, so the common code never sends it a payload.
         ServerPlayer fake = Platform.INSTANCE.fakePlayer(helper.getLevel(), new GameProfile(UUID.randomUUID(), "HalisonCode[smoke]"));
         helper.assertFalse(Platform.INSTANCE.canSend(fake, RelayPayloads.ToClient.TYPE), "canSend to a FakePlayer");

@@ -131,14 +131,20 @@ public final class RobotQueue {
         return entries.peek();
     }
 
+    /** Issue #81: told about each refused command this queue finishes, not about the ones a stop clears. */
+    Runnable refused = () -> { };
+
     /** Removes the head and reports its result. */
     public void finish(Result result) {
         Entry e = entries.poll();
-        if (e != null) e.done.accept(result);
+        if (e == null) return;
+        if (!result.ok()) refused.run();
+        e.done.accept(result);
     }
 
     /** Answers every queued command with the given error and empties the queue. */
     public void clear(Result.Code code, String message) {
-        while (!entries.isEmpty()) finish(Result.error(code, message));
+        Entry e;
+        while ((e = entries.poll()) != null) e.done.accept(Result.error(code, message));
     }
 }
