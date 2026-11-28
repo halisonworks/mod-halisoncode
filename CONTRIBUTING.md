@@ -13,7 +13,7 @@ documentation are in English, except the Norwegian player guide and block texts.
 | Report a bug | [Open a bug report](https://github.com/halisonworks/mod-halisoncode/issues/new?template=bug_report.yml). Look in the troubleshooting table of the player guide ([English](docs/player/guide-en.md#troubleshooting), [norsk](docs/player/guide-nb.md)) and in the open issues first. |
 | Suggest an idea | [Open an idea](https://github.com/halisonworks/mod-halisoncode/issues/new?template=feature_request.yml). Say what you want to do and why it is useful or fun; a solution is welcome but not needed. |
 | Report a security problem | Never in a public issue. See [SECURITY.md](SECURITY.md). |
-| Improve a text or a translation | Edit the file and open a pull request. The Norwegian block texts are in `target/locales/nb/halisoncode/`, the game's messages in `common/src/main/resources/assets/halisoncode/lang/nb_no.json`. |
+| Improve a text or a translation | Edit the file and open a pull request. The Norwegian block texts are in `target/locales/nb/halisoncode/`, the game's messages in `common/src/main/resources/assets/halisoncode/lang/no_no.json`. |
 | Share an example program | Open an idea with the program in it. |
 | Fix a bug or build a feature | See below. |
 
@@ -209,9 +209,10 @@ Halison Code has two sets of texts, and a new language needs both (issue #275).
 
 1. **The game's messages** (chat replies, game rules, keys): copy
    `common/src/main/resources/assets/halisoncode/lang/en_us.json` to the game's code for the language, for example
-   `sv_se.json` for Swedish, and translate the texts. Keep every `%s` (the game fills in a robot name, a number or a
+   `sv_se.json` for Swedish, and translate the texts. Use the code in the game's own language list, not the ISO one:
+   Norwegian Bokmal is `no_no.json` in Minecraft, not `nb_no.json`. Keep every `%s` (the game fills in a robot name, a number or a
    command there), and keep command words such as `/robot list` in English, because the commands are English.
-   `PlayerMessageTest` today checks `nb_no.json` only: add your file to that test too.
+   `PlayerMessageTest` today checks `no_no.json` only: add your file to that test too.
 2. **The editor** (block texts, categories, help): add a folder under `target/locales/` named after the language, as
    `target/locales/nb/`, and add the language to `availableLocales` in `target/pxtarget.json`.
 3. Run `./gradlew :fabric:26.3:test` and the [editor test suite](README.md#editor-test-suite), and open a
