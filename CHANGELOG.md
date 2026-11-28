@@ -8,6 +8,10 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ### Fixed
 
+- A program was stopped with "no heartbeat from the editor" about a minute after the player went back to Minecraft
+  (issue #458), also a program that waited for chat or a signal. The browser slows the timers of a tab it does not
+  show, so the editor's heartbeat could stop. The game's own relay now sends the heartbeat while the editor is
+  connected; closing the tab still stops the program at once.
 - Fabric: the chat no longer marks `/halisoncode log`, `/halisoncode report` and the other client commands red with
   "Incorrect argument for command" while you type them (issue #456). They always ran; now the chat knows them too.
 - Halison Code's messages in the game were English even with the game set to Norwegian (issue #457): the texts were in
