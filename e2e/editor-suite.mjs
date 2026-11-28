@@ -957,6 +957,42 @@ async function gallerySection(browser, url) {
     check(foreign.length === 0, "gallery", `requests to other hosts: ${[...new Set(foreign)].join(", ")}`);
 }
 
+// Issue #447: in a Norwegian editor the robot's own sentences in the robot log are Norwegian. The standalone relay
+// answers signals.send with the key of "No mod on this server listens for signals"; the editor's sim-strings.json
+// translates it. Its own context, so the language does not carry over to the sections after it.
+async function norwegianLogSection(browser, url) {
+    step("robot log: the robot's own sentences in Norwegian");
+    const context = await browser.newContext({ locale: "nb-NO", viewport: { width: 1280, height: 800 } });
+    const page = await context.newPage();
+    page.setDefaultTimeout(60000);
+    await page.goto(url.replace("/#", "/?lang=nb#"));
+    await editor.newProject(page);
+    await setProgram(page, "ts", `signals.send("lamp-red")`);
+    await editor.start(page);
+    const started = Date.now();
+    let log = [];
+    while (Date.now() - started < 30000 && !log.some(l => l.includes("«lamp-red»") || l.includes("went nowhere"))) {
+        await page.waitForTimeout(100);
+        log = await editor.robotLog(page);
+    }
+    await editor.stop(page);
+    check(log.includes("Ingen mod på denne serveren lytter etter signaler, så «lamp-red» kom ikke frem."),
+        "norwegian log", `robot log ${JSON.stringify(log)}`);
+    // Issue #459: a block in the robot's sentence by the editor's Norwegian name; a block without one keeps its id path.
+    const texts = [];
+    for (const frame of page.frames()) {
+        const t = await frame.evaluate(() => typeof pxsim !== "undefined" && pxsim.robotText ? [
+            pxsim.robotText({ key: "robot.halisoncode.no_items", args: ["stone"], message: "" }),
+            pxsim.robotText({ key: "robot.halisoncode.no_items.after", args: ["oak planks", "3"], message: "" }),
+            pxsim.robotText({ key: "robot.halisoncode.no_items", args: ["no such block"], message: "" }),
+        ] : null).catch(() => null);
+        if (t) texts.push(...t);
+    }
+    check(texts[0] === "Jeg har ingen stein i inventaret." && texts[1] === "Jeg gikk tom for eikeplanker etter 3 blokker."
+        && texts[2] === "Jeg har ingen no such block i inventaret.", "norwegian block names", JSON.stringify(texts));
+    await context.close();
+}
+
 // Issue #16 and commit f0cdd02: our name once in the header, pxt (not Microsoft MakeCode) in About, no README panel.
 async function brandingSection(page) {
     await page.goto("about:blank");
@@ -1019,6 +1055,7 @@ async function main() {
         await fixturesSection(page);
         await savedProjectsSection(browser, relay.url);
         await gallerySection(browser, relay.url);
+        await norwegianLogSection(browser, relay.url);
         step("header, About box, side panel");
         await brandingSection(page);
     } catch (e) {

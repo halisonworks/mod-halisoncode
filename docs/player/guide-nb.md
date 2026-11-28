@@ -495,7 +495,7 @@ signals.send("lamp-red")
 | bygger linje fra merke med (blokk), bygger fyll fra merke med (blokk) (hvordan) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Bygger fra merket til byggeren. |
 | bygger plasser (blokk), bygger posisjon | `builder.place(Block.Torch)` | Plasserer en blokk der byggeren er, eller sier hvor den er. |
 
-Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "I have no stone in my inventory."), og kallet feiler med `NO_ITEMS`, som JavaScript og Python kan fange (se [Feil](#feil-og-å-sjekke-sitt-eget-program)); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
+Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "Jeg har ingen Stein i inventaret."; over roboten på spillets språk, i loggen på editorens), og kallet feiler med `NO_ITEMS`, som JavaScript og Python kan fange (se [Feil](#feil-og-å-sjekke-sitt-eget-program)); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
 
 Kategorien Konsoll har "si (tekst)" (`console.log("tekst")`). Den skriver i loggen under simulatoren.
 

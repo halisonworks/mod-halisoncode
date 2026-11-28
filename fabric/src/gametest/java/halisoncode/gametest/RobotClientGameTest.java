@@ -58,6 +58,12 @@ public class RobotClientGameTest implements FabricClientGameTest {
             }
             owner = context.computeOnClient(mc -> mc.player.getUUID());
 
+            // Issue #456: what the chat screen checks. The client's own /halisoncode commands and the server's parse
+            // without an error, so the chat does not mark them red.
+            for (String typed : new String[] {"halisoncode log on 60", "halisoncode report", "halisoncode", "halisoncode signal test"}) {
+                context.waitFor(mc -> parses(mc, typed), TICKS);
+            }
+
             // /robot spawn typed by the player: a real command packet.
             command(context, world, "robot spawn");
             BlockPos spawnedAt = server.computeOnServer(s -> robot(owner).blockPosition());
@@ -290,6 +296,12 @@ public class RobotClientGameTest implements FabricClientGameTest {
         RobotEntity robot = RobotManager.robot(key);
         if (robot == null) throw new AssertionError("robot " + key.name() + " is not loaded");
         return robot;
+    }
+
+    private static boolean parses(net.minecraft.client.Minecraft mc, String typed) {
+        var parse = mc.getConnection().getCommands().parse(typed, mc.getConnection().getSuggestionsProvider());
+        // An unknown word stops the parse there, so the rest is left unread.
+        return parse.getExceptions().isEmpty() && !parse.getReader().canRead();
     }
 
     private static String cmd(long id, long run, String op, String args) {

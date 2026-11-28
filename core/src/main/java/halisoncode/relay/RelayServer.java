@@ -558,6 +558,7 @@ public final class RelayServer implements AutoCloseable {
             JsonObject msg = JsonParser.parseString(json).getAsJsonObject();
             if ("control".equals(msg.get("t").getAsString()) && "start".equals(msg.get("op").getAsString())) {
                 session.run = msg.get("run").getAsLong();
+                session.beat();
             }
         } catch (RuntimeException ignored) {
             // only the run bookkeeping needs the fields; the message is forwarded as is
@@ -580,6 +581,10 @@ public final class RelayServer implements AutoCloseable {
         private final AtomicLong pending = new AtomicLong();
         private volatile boolean authed;
         volatile long run = -1;
+        /** Issue #460: the run the browser stopped itself, so a closing socket does not stop it a second time. */
+        private volatile long stoppedRun = -1;
+        /** Issue #458: the relay's own heartbeat for this session's run. */
+        private Future<?> heartbeat;
         // Standalone only: what the program listens for, for the chat and death events of player.say below.
         private Protocol.Subscription subscribed = new Protocol.Subscription(Set.of(), false, Set.of(), false, false, Set.of());
 
@@ -602,11 +607,14 @@ public final class RelayServer implements AutoCloseable {
                 // the tab closed, or the socket was closed by a takeover, a deadline or close()
             } finally {
                 hello.cancel(false);
+                synchronized (this) {
+                    if (heartbeat != null) heartbeat.cancel(false);
+                }
                 writer.shutdown();
                 active.compareAndSet(this, null);
                 if (authed) LOG.info("editor disconnected (run {})", run);
                 // A closed tab stops its run now instead of after the heartbeat timeout. The server ignores an old run id.
-                if (link != null && run >= 0) link.send(Protocol.control("stop", run, null));
+                if (link != null && run >= 0 && stoppedRun != run) link.send(Protocol.control("stop", run, null));
             }
         }
 
@@ -723,6 +731,10 @@ public final class RelayServer implements AutoCloseable {
                 return true;
             }
             String problem = link.send(text);
+            if (problem == null && type.equals("control") && msg.has("op") && "stop".equals(msg.get("op").getAsString())
+                    && msg.has("run")) {
+                stoppedRun = msg.get("run").getAsLong();
+            }
             if (problem != null) {
                 LOG.warn("not passed on to the game: {}", problem);
                 write(Protocol.error(id, Result.Code.UNLOADED, problem));
@@ -832,6 +844,27 @@ public final class RelayServer implements AutoCloseable {
                 default -> true;
             };
             schedule(() -> write(Protocol.reply(id, Result.ok(value))), STUB_ACK_MS);
+        }
+
+        /**
+         * Issue #458: while this socket is open, the relay tells the game every few seconds that the editor is there.
+         * A browser slows or stops the timers of a tab it does not show (Chrome, Edge, a laptop on battery), so the
+         * editor's own heartbeat could stop while the child is in Minecraft, and the game stopped a program that waited
+         * for chat or a signal. A closed tab closes the socket, and that still stops the run at once (see run()).
+         */
+        synchronized void beat() {
+            if (link == null) return; // standalone: no game to keep alive
+            if (heartbeat != null) heartbeat.cancel(false);
+            long beatRun = run;
+            try {
+                heartbeat = timers.scheduleAtFixedRate(() -> {
+                    if (socket.isClosed() || run != beatRun || active.get() != this) return;
+                    String problem = link.send(Protocol.control("heartbeat", beatRun, null));
+                    if (problem != null && LOG.detailed()) LOG.detail("relay heartbeat not passed on: {}", problem);
+                }, Protocol.RELAY_HEARTBEAT_MS, Protocol.RELAY_HEARTBEAT_MS, TimeUnit.MILLISECONDS);
+            } catch (RejectedExecutionException ignored) {
+                // the server is closing
+            }
         }
 
         void write(String json) {
