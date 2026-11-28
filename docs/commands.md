@@ -11,7 +11,7 @@ as `[name]`) picks one of your own robots; without it the command is for your de
 
 | Command | Who | What it does |
 |---|---|---|
-| `/halisoncode` | Every player (client command) | Opens the editor in the browser. |
+| `/halisoncode` | Every player (client command) | Opens the editor in the browser. The key H (Controls, under Halison Code) does the same. |
 | `/halisoncode log on [minutes]`, `/halisoncode log off` | Every player (client command) | Extended logging in your own game for 15 minutes, or 1 to 60. Also ends after 50,000 lines. |
 | `/halisoncode report` | Every player (client command) | Writes what a bug report needs to `logs/halisoncode-report.txt`. |
 | `/halisoncode chat <text>` | Every player | Sends the text to your own running program's "on chat command" code, as typing it in the chat would. For servers whose chat plugins take chat lines first. |

@@ -1,5 +1,6 @@
 package halisoncode.net;
 
+import halisoncode.Messages;
 import halisoncode.HalisonCode;
 import halisoncode.McCompat;
 import halisoncode.Permission;
@@ -112,12 +113,12 @@ final class PlayerApi {
         int now = player.level().getServer().getTickCount();
         Map<String, Integer> sent = SENT.computeIfAbsent(player.getUUID(), o -> new HashMap<>());
         sent.values().removeIf(tick -> now - tick >= TICKS_PER_SIGNAL || now < tick);
-        if (sent.containsKey(name)) return Result.ok(false, "Signal \"" + name + "\" was sent less than a second ago, so it was not sent again.");
+        if (sent.containsKey(name)) return Result.ok(false, Messages.robot("robot.halisoncode.signal.again", name));
         sent.put(name, now);
         if (!SignalHub.hasListeners()) return Result.ok(false, SignalHub.nobodyListens(name));
         boolean taken = SignalHub.send(player.getUUID(), name);
         HalisonCode.LOG.detail("signals: {}'s program sent a signal, {}.", player.getGameProfile().name(), taken ? "taken" : "not taken by any listener");
-        return taken ? Result.ok(true) : Result.ok(false, "No mod on this server takes the signal \"" + name + "\".");
+        return taken ? Result.ok(true) : Result.ok(false, Messages.robot("robot.halisoncode.signal.not_taken", name));
     }
 
     // As /tp would allow it: by default the host of a singleplayer world or an op (game master), in the owner's own dimension,

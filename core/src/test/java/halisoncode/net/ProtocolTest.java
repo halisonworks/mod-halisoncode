@@ -104,6 +104,15 @@ class ProtocolTest {
         JsonObject told = JsonParser.parseString(Protocol.reply(10, Result.ok(0, "I have no stone in my inventory."))).getAsJsonObject();
         assertEquals(0, told.get("value").getAsInt());
         assertEquals("I have no stone in my inventory.", told.get("message").getAsString());
+        assertFalse(told.has("key"));
+        // Issue #447: a sentence of the robot's own has its key and args too, on a result and on an error.
+        Result.Text text = new Result.Text("robot.halisoncode.no_items.after", java.util.List.of("oak planks", "90"), "I ran out of oak planks after 90 blocks.");
+        for (JsonObject keyed : java.util.List.of(JsonParser.parseString(Protocol.reply(11, Result.ok(false, text))).getAsJsonObject(),
+                JsonParser.parseString(Protocol.reply(12, Result.error(Result.Code.NO_ITEMS, text))).getAsJsonObject())) {
+            assertEquals("I ran out of oak planks after 90 blocks.", keyed.get("message").getAsString());
+            assertEquals("robot.halisoncode.no_items.after", keyed.get("key").getAsString());
+            assertEquals("[\"oak planks\",\"90\"]", keyed.get("args").toString());
+        }
         JsonObject err = JsonParser.parseString(Protocol.reply(8, Result.error(Result.Code.STOPPED, "stopped"))).getAsJsonObject();
         assertEquals("error", err.get("t").getAsString());
         assertEquals("STOPPED", err.get("code").getAsString());

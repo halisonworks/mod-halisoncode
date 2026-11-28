@@ -6,12 +6,39 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ## [Unreleased]
 
+### Added
+
+- A key opens the editor (issue #7): H by default, the same as typing `/halisoncode`. Change it in Controls, under
+  Halison Code.
+- What the robot says in its own words is in Norwegian too (issue #447): over its head in the game's language, with
+  the game's own block names ("Jeg gikk tom for Eikeplanker etter 90 blokker."), and in the robot log in the editor's
+  language. That is when it runs out of blocks, is not on the path, finds no free block next to another robot, and the
+  answers of signals.send. In the log the block name is still the English id ("oak planks"). A caught `NO_ITEMS`
+  error keeps its code, so `error.indexOf("NO_ITEMS") == 0` still works. Other error texts stay English.
+
 ### Changed
 
 - The editor and a closed connection (issue #9): when the connection to the game closes while nothing waits on it
   (the program is done and listens for no events), the robot log says "Press Run to connect again" instead of showing
   an error dialog, and the next Run connects again without reloading the page. A program that still needs the game
   gets the dialog as before.
+
+### Fixed
+
+- In a Norwegian editor the robot log names blocks in Norwegian ("Jeg har ingen stein i inventaret"), not by the
+  block's id (issue #459).
+
+
+- Stop in the editor reached the server twice: the relay sent its own stop when the socket closed (issue #460).
+- A program was stopped with "no heartbeat from the editor" about a minute after the player went back to Minecraft
+  (issue #458), also a program that waited for chat or a signal. The browser slows the timers of a tab it does not
+  show, so the editor's heartbeat could stop. The game's own relay now sends the heartbeat while the editor is
+  connected; closing the tab still stops the program at once.
+- Fabric: the chat no longer marks `/halisoncode log`, `/halisoncode report` and the other client commands red with
+  "Incorrect argument for command" while you type them (issue #456). They always ran; now the chat knows them too.
+- Halison Code's messages in the game were English even with the game set to Norwegian (issue #457): the texts were in
+  `nb_no.json`, but Minecraft's code for Norwegian Bokmal is `no_no`, so the game never read them. The file is now
+  `no_no.json`, and a test fails if it gets the old name again.
 
 ## [0.0.7] - 2026-11-27
 
