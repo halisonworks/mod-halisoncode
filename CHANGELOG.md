@@ -8,6 +8,7 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ### Fixed
 
+- Stop in the editor reached the server twice: the relay sent its own stop when the socket closed (issue #460).
 - A program was stopped with "no heartbeat from the editor" about a minute after the player went back to Minecraft
   (issue #458), also a program that waited for chat or a signal. The browser slows the timers of a tab it does not
   show, so the editor's heartbeat could stop. The game's own relay now sends the heartbeat while the editor is
