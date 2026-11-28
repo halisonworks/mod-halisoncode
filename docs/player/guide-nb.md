@@ -61,11 +61,17 @@ Bruk disse stegene i stedet hvis du spiller med NeoForge. NeoForge trenger ikke 
 ## Åpne editoren
 
 1. Åpne en verden (enspiller, eller en server som har Halison Code, se [Flerspiller](#flerspiller)).
-2. Trykk T for å åpne chatten. Skriv `/halisoncode` og trykk Enter.
+2. Trykk H, eller trykk T for å åpne chatten, skriv `/halisoncode` og trykk Enter. (Tasten endrer du under Alternativer, Kontroller, Tastebindinger, under Halison Code.)
 3. Nettleseren åpner Halison Code-editoren. Lenken virker bare på denne maskinen, og bare til du lukker Minecraft.
 4. Mens et program kjører, fortsetter spillet når du klikker i nettleseren. Åpner du pausemenyen (Escape), går spillet på pause og roboten venter: loggen under simulatoren sier "Minecraft is paused. Go back to the game and close the menu." Lukk menyen, så fortsetter roboten.
 
 Editoren kan vise norsk. Robotblokkene har norske navn. Noen få andre tekster er fortsatt på engelsk.
+
+### Editoren som app (valgfritt)
+
+I Chrome eller Edge kan du installere editoren, så den åpnes i et eget vindu med Halison Code-ikonet, og ikke som en fane blant mange. Åpne editoren fra spillet, og klikk på installer-ikonet til høyre i adressefeltet (eller menyen, så «Installer Halison Code»). Prosjektene dine er de samme i appen og i nettleseren.
+
+Minecraft må fortsatt kjøre: editoren kjører inne i spillet. Åpner du appen fra ikonet mens spillet er lukket, står det «Start Minecraft først». Står det «Editor link expired» når du kjører et program, åpner du editoren fra spillet på nytt. Firefox kan ikke installere nettapper; der virker editoren i en fane som før.
 
 ## Lag roboten
 
@@ -495,7 +501,7 @@ signals.send("lamp-red")
 | bygger linje fra merke med (blokk), bygger fyll fra merke med (blokk) (hvordan) | `builder.fill(Block.Stone, FillOperation.Hollow)` | Bygger fra merket til byggeren. |
 | bygger plasser (blokk), bygger posisjon | `builder.place(Block.Torch)` | Plasserer en blokk der byggeren er, eller sier hvor den er. |
 
-Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "I have no stone in my inventory."), og kallet feiler med `NO_ITEMS`, som JavaScript og Python kan fange (se [Feil](#feil-og-å-sjekke-sitt-eget-program)); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
+Roboten bygger alt dette, så den må være innenfor 32 blokker fra hver del. I overlevelse bruker den blokkene i inventaret sitt og stopper når de er brukt opp. Da sier den hvorfor, over hodet og i loggen under simulatoren (for eksempel "Jeg har ingen Stein i inventaret."; over roboten på spillets språk, i loggen på editorens), og kallet feiler med `NO_ITEMS`, som JavaScript og Python kan fange (se [Feil](#feil-og-å-sjekke-sitt-eget-program)); i kreativ modus, eller med spilleregelen `halisoncode:free_items`, trenger den ingen. Blokker som står i veien, blir ødelagt og havner i roboten.
 
 Kategorien Konsoll har "si (tekst)" (`console.log("tekst")`). Den skriver i loggen under simulatoren.
 
@@ -657,6 +663,7 @@ standardroboten din.
 | `/halisoncode signal <spillere> <navn> [tall]` | Sender et signal til programmene til spillerne du nevner (for eksempel `@a` eller et spillernavn), med tallet (0 uten tall). Bare for operatører, og for kommandoblokker. Den sier hvor mange programmer som fikk det, og nevner spillerne det ikke nådde. |
 | `/halisoncode log on [minutter]` og `/halisoncode log off` | Utvidet logging i ditt eget spill i 15 minutter (eller 1 til 60). Se «Meld fra om et problem». |
 | `/halisoncode report` | Skriver det en feilmelding trenger til `logs/halisoncode-report.txt` i mappen til spillet. |
+| `/halisoncode effects <on\|off>` | Robotens partikler og lyder: et fottrinn og et pust for hvert steg, røyk og en dyp tone når en kommando blir avvist, og et grønt omriss rundt blokka som detect eller inspect ser på. Bare du ser dem, og bare nær roboten. Av blir husket på denne maskinen. |
 | `/halisoncode server log on [minutter]`, `/halisoncode server log off` og `/halisoncode server report` | Det samme for serveren. Bare for operatører og serverkonsollen. |
 | `/robot spawn [navn]` | Lager roboten din, eller flytter den til deg. Stopper et program som kjører. En ny robot med navn trenger plass under `halisoncode:max_robots`. |
 | `/robot list` | Robotene dine og hvor de er. |

@@ -32,6 +32,8 @@ public final class Protocol {
     // game never times out a run; make it a server config value in step 4.
     public static final int HEARTBEAT_TIMEOUT_TICKS = 200;
     public static final int HEARTBEAT_TIMEOUT_MS = HEARTBEAT_TIMEOUT_TICKS * 50;
+    /** Issue #458: how often the client's relay sends a heartbeat for an open editor socket, well inside the timeout. */
+    public static final int RELAY_HEARTBEAT_MS = 3000;
 
     private Protocol() {
     }
@@ -243,7 +245,11 @@ public final class Protocol {
 
     /** {@code result} for an ok result, {@code error} otherwise. */
     public static String reply(long id, Result result) {
-        if (!result.ok()) return error(id, result.code(), result.message());
+        if (!result.ok()) {
+            JsonObject o = errorObject(id, result.code(), result.message());
+            text(o, result);
+            return o.toString();
+        }
         JsonObject o = envelope("result");
         o.addProperty("id", id);
         o.addProperty("ok", true);
@@ -253,15 +259,28 @@ public final class Protocol {
         else if (value instanceof List<?> list) o.add("value", new Gson().toJsonTree(list)); // getPosition: [x, y, z]
         else if (value != null) o.addProperty("value", value.toString());
         if (result.message() != null) o.addProperty("message", result.message());
+        text(o, result);
         return o.toString();
     }
 
+    // Issue #447: a sentence the robot says has a key and its args, which the editor translates; an older editor reads
+    // only "message", the English text.
+    private static void text(JsonObject o, Result result) {
+        if (result.key() == null) return;
+        o.addProperty("key", result.key());
+        o.add("args", new Gson().toJsonTree(result.args()));
+    }
+
     public static String error(Long id, Result.Code code, String message) {
+        return errorObject(id, code, message).toString();
+    }
+
+    private static JsonObject errorObject(Long id, Result.Code code, String message) {
         JsonObject o = envelope("error");
         if (id != null) o.addProperty("id", id);
         o.addProperty("code", code.name());
         o.addProperty("message", message);
-        return o.toString();
+        return o;
     }
 
     /** A {@code control} message; {@code message} (may be null) tells the player why. */

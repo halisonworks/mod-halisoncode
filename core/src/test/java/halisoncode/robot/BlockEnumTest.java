@@ -3,6 +3,7 @@ package halisoncode.robot;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
@@ -13,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -24,6 +27,8 @@ class BlockEnumTest {
     // Gradle runs tests with the mod/ project directory as working directory.
     private static final Path ENUM_FILE = Path.of("..", "target", "libs", "core", "blocks.d.ts");
     private static final Path NB_STRINGS = Path.of("..", "target", "locales", "nb", "halisoncode", "core-strings.json");
+    private static final Path NB_SIM_STRINGS = Path.of("..", "target", "locales", "nb", "halisoncode", "sim-strings.json");
+    private static final String BLOCK_PREFIX = "{id:block}";
 
     /** STONE to Stone, OAK_PLANKS to OakPlanks; pxt's Python names turn these back into OAK_PLANKS. */
     static String member(String name) {
@@ -70,5 +75,26 @@ class BlockEnumTest {
             if (!nb.has(key)) missing.add(key);
         }
         assertTrue(missing.isEmpty(), "missing in " + NB_STRINGS + ": " + missing);
+    }
+
+    // Issue #459: the robot log names a block in the editor's language. The game sends the block as its id path with
+    // spaces ("oak planks"); sim-strings.json gets "{id:block}oak planks" with the Block enum's Norwegian label. The
+    // hand-written sentences in the file stay; the block entries are generated here, like the enum file above.
+    @Test
+    void simStringsHaveTheNorwegianBlockNames() throws IOException {
+        JsonObject nb = JsonParser.parseString(Files.readString(NB_STRINGS, StandardCharsets.UTF_8)).getAsJsonObject();
+        String actual = Files.readString(NB_SIM_STRINGS, StandardCharsets.UTF_8).replace("\r\n", "\n");
+        JsonObject old = JsonParser.parseString(actual).getAsJsonObject();
+        JsonObject out = new JsonObject();
+        for (var e : old.entrySet()) if (!e.getKey().startsWith(BLOCK_PREFIX)) out.add(e.getKey(), e.getValue());
+        Map<String, String> blocks = new TreeMap<>();
+        for (String modern : BlockIds.modernIds()) {
+            String key = "Block." + member(BlockIds.name(BlockIds.fromModern(modern))) + "|block";
+            if (nb.has(key)) blocks.put(BLOCK_PREFIX + modern.substring(modern.indexOf(':') + 1).replace('_', ' '), nb.get(key).getAsString());
+        }
+        blocks.forEach(out::addProperty);
+        String expected = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(out) + "\n";
+        if (!expected.equals(actual)) Files.writeString(NB_SIM_STRINGS, expected, StandardCharsets.UTF_8);
+        assertEquals(expected, actual, NB_SIM_STRINGS + " was out of date and has been regenerated; rerun the test and commit it");
     }
 }

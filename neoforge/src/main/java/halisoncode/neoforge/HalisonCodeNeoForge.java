@@ -44,6 +44,7 @@ public final class HalisonCodeNeoForge {
     // entrypoint (constructed before the event) sets these, so this class never names client classes.
     public static IPayloadHandler<RelayPayloads.ToClient> toClient = (payload, context) -> { };
     public static IPayloadHandler<RelayPayloads.Camera> camera = (payload, context) -> { };
+    public static IPayloadHandler<RelayPayloads.Effect> effect = (payload, context) -> { };
     *///?}
 
     public HalisonCodeNeoForge(IEventBus modBus) {
@@ -107,9 +108,11 @@ public final class HalisonCodeNeoForge {
         //? if >=26.1 {
         registrar.playToClient(RelayPayloads.ToClient.TYPE, RelayPayloads.ToClient.CODEC);
         registrar.playToClient(RelayPayloads.Camera.TYPE, RelayPayloads.Camera.CODEC);
+        registrar.playToClient(RelayPayloads.Effect.TYPE, RelayPayloads.Effect.CODEC);
         //?} else {
         /*registrar.playToClient(RelayPayloads.ToClient.TYPE, RelayPayloads.ToClient.CODEC, (payload, context) -> toClient.handle(payload, context));
         registrar.playToClient(RelayPayloads.Camera.TYPE, RelayPayloads.Camera.CODEC, (payload, context) -> camera.handle(payload, context));
+        registrar.playToClient(RelayPayloads.Effect.TYPE, RelayPayloads.Effect.CODEC, (payload, context) -> effect.handle(payload, context));
         *///?}
     }
 }

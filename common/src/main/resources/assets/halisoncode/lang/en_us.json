@@ -42,6 +42,8 @@
   "commands.halisoncode.list.default": "default robot (agent)",
   "commands.halisoncode.list.default.named": "%s (agent)",
   "commands.halisoncode.list.unloaded": "%s: not loaded",
+  "commands.halisoncode.effects.off": "The robot's particles and sounds are off. Turn them on with %s",
+  "commands.halisoncode.effects.on": "The robot's particles and sounds are on",
   "commands.halisoncode.log.off": "Extended logging is off",
   "commands.halisoncode.log.on": "Extended logging is on for %s minutes. Make the problem happen again, then use %s",
   "commands.halisoncode.move": "%s moved %s, blocks: %s",
@@ -78,6 +80,7 @@
   "key.category.halisoncode.halisoncode": "Halison Code",
   "key.halisoncode.camera": "Robot camera",
   "key.halisoncode.camera_follow": "Robot camera: follow",
+  "key.halisoncode.editor": "Open the editor",
   "message.halisoncode.direction.back": "back",
   "message.halisoncode.direction.down": "down",
   "message.halisoncode.direction.east": "east",
@@ -103,5 +106,13 @@
   "message.halisoncode.robot.no_default": "You have no default robot. Use %s to get one",
   "message.halisoncode.robot.none": "You have no robot. Use %s to get one",
   "message.halisoncode.robot.unknown": "You have no robot called %s. Use /robot list to see yours",
-  "message.halisoncode.robot.unloaded": "%s is not loaded. Go near it, or use %s to bring it to you"
+  "message.halisoncode.robot.unloaded": "%s is not loaded. Go near it, or use %s to bring it to you",
+  "robot.halisoncode.no_free_block": "there is no free block next to %s",
+  "robot.halisoncode.no_items": "I have no %s in my inventory.",
+  "robot.halisoncode.no_items.after": "I ran out of %s after %s blocks.",
+  "robot.halisoncode.no_items.after_one": "I ran out of %s after 1 block.",
+  "robot.halisoncode.not_on_path": "I am not on the path. Put me on the %s first.",
+  "robot.halisoncode.signal.again": "Signal \"%s\" was sent less than a second ago, so it was not sent again.",
+  "robot.halisoncode.signal.nobody": "No mod on this server listens for signals, so \"%s\" went nowhere.",
+  "robot.halisoncode.signal.not_taken": "No mod on this server takes the signal \"%s\"."
 }

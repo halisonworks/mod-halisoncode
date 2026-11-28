@@ -69,7 +69,7 @@ public class RobotRenderer extends EntityRenderer<RobotEntity, RobotRenderer.Sta
     private List<Component> lines(RobotEntity entity, double distance, boolean showName) {
         List<Component> lines = new ArrayList<>();
         if (!entity.said().isEmpty()) {
-            lines.add(Component.literal(entity.said()));
+            lines.add(halisoncode.Messages.said(entity.said()));
             return lines;
         }
         if (lookedAtUpClose(entity, distance) && !entity.ownerName().isEmpty()) lines.add(halisoncode.Messages.of("message.halisoncode.owner", entity.ownerName()));

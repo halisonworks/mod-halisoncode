@@ -10,6 +10,9 @@ version = "${version}"
 displayName = "Halison Code"
 authors = "Tor Einar Enne"
 displayURL = "https://github.com/halisonworks/mod-halisoncode"
+# Issue #198: the robot head of the editor's logo (target/docs/static/logo.svg); the same file is Fabric's icon.
+logoFile = "assets/halisoncode/icon.png"
+logoBlur = false
 description = '''Program Kintro, a robot, with blocks, JavaScript or Python. Not approved by or associated with Mojang or Microsoft.'''
 # 26.x: adds the enum game rule type (halisoncode:robot_camera); see NeoForgePlatform.enumRule. Empty on 1.21.1.
 ${enum_extensions}
