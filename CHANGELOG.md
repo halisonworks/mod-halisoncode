@@ -8,6 +8,8 @@ Every user-visible change to Halison Code (Codeling up to 0.0.5) is listed here.
 
 ### Fixed
 
+- Fabric: the chat no longer marks `/halisoncode log`, `/halisoncode report` and the other client commands red with
+  "Incorrect argument for command" while you type them (issue #456). They always ran; now the chat knows them too.
 - Halison Code's messages in the game were English even with the game set to Norwegian (issue #457): the texts were in
   `nb_no.json`, but Minecraft's code for Norwegian Bokmal is `no_no`, so the game never read them. The file is now
   `no_no.json`, and a test fails if it gets the old name again.
